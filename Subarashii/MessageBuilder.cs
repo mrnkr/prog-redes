@@ -28,7 +28,6 @@ namespace Subarashii.Core
         {
             Payload = Encoding.UTF8.GetBytes(payload);
             Length = Constants.HEADER_LENGTH + Payload.Length;
-            IsFile = false;
 
             return this;
         }
@@ -48,7 +47,6 @@ namespace Subarashii.Core
 
             Payload = Encoding.UTF8.GetBytes(payloadString);
             Length = Constants.HEADER_LENGTH + Payload.Length;
-            IsFile = false;
 
             return this;
         }
@@ -57,6 +55,12 @@ namespace Subarashii.Core
         {
             Payload = payload;
             Length = Constants.HEADER_LENGTH + Payload.Length;
+
+            return this;
+        }
+
+        public MessageBuilder MarkAsFile()
+        {
             IsFile = true;
 
             return this;

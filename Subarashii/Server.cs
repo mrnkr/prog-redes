@@ -77,13 +77,26 @@ namespace Subarashii.Core
                                 var decoded = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
                                 var result = HandleRequest(decoded);
 
-                                var response = new MessageBuilder()
-                                    .MarkAsResponse()
-                                    .PutOperationCode(decoded.Code)
-                                    .PutPayload(result)
-                                    .Build();
+                                if (result.GetType() == typeof(string))
+                                {
+                                    var response = new MessageBuilder()
+                                        .MarkAsResponse()
+                                        .PutOperationCode(decoded.Code)
+                                        .PutPayload((string)result)
+                                        .Build();
 
-                                handler.Send(response);
+                                    handler.Send(response);
+                                }
+                                else
+                                {
+                                    var response = new MessageBuilder()
+                                        .MarkAsResponse()
+                                        .PutOperationCode(decoded.Code)
+                                        .PutPayload(result)
+                                        .Build();
+
+                                    handler.Send(response);
+                                }
                             }
 
                             handler.Shutdown(SocketShutdown.Both);

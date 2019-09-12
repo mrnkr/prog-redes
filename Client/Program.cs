@@ -1,5 +1,6 @@
 ﻿using System;
 using Subarashii.Core;
+using SubarashiiDemo.Model;
 
 namespace SubarashiiDemo.Cli
 {
@@ -7,11 +8,28 @@ namespace SubarashiiDemo.Cli
     {
         static void Main(string[] args)
         {
+            Console.ReadLine();
             var client = new Client(8000);
-            client.Connect();
-            var response = client.Send("23", "Hello there");
-            Console.WriteLine(response);
-            client.Dispose();
+            client.Connect(() =>
+            {
+                try
+                {
+                    var response = client.Send("66", new User()
+                    {
+                        Id = "220159",
+                        FirstName = "Alvaro",
+                        LastName = "Nicoli"
+                    });
+                    Console.WriteLine(response);
+                }
+                catch
+                {
+                    Console.WriteLine("Error");
+                }
+
+                client.Dispose();
+                Console.ReadLine();
+            });
         }
     }
 }
