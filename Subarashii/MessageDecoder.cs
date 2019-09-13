@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 
 namespace Subarashii.Core
@@ -35,15 +36,7 @@ namespace Subarashii.Core
 
         public static T DecodePayload<T>(byte[] payload) where T : class
         {
-            var decoded = DecodePayload(payload);
-            var entries = decoded.Split('&');
-            var map = new Dictionary<string, string>();
-
-            foreach (var entry in entries)
-            {
-                var keyValue = entry.Split('=');
-                map.Add(keyValue[0], keyValue[1]);
-            }
+            var map = DecodeAndMap(payload);
 
             var props = typeof(T).GetProperties();
             var ret = Activator.CreateInstance<T>();
@@ -60,15 +53,7 @@ namespace Subarashii.Core
 
         public static object DecodePayload(byte[] payload, Type t)
         {
-            var decoded = DecodePayload(payload);
-            var entries = decoded.Split('&');
-            var map = new Dictionary<string, string>();
-
-            foreach (var entry in entries)
-            {
-                var keyValue = entry.Split('=');
-                map.Add(keyValue[0], keyValue[1]);
-            }
+            var map  =DecodeAndMap(payload);
 
             var props = t.GetProperties();
             var ret = Activator.CreateInstance(t);
@@ -82,5 +67,21 @@ namespace Subarashii.Core
 
             return ret;
         }
+
+        private static Dictionary<string,string> DecodeAndMap(byte[] payload)
+        {
+            var decoded = DecodePayload(payload);
+            var entries = decoded.Split('&');
+            var map = new Dictionary<string, string>();
+
+            foreach (var entry in entries)
+            {
+                var keyValue = entry.Split('=');
+                map.Add(keyValue[0], keyValue[1]);
+            }
+            return map;
+        }
+
+
     }
 }
