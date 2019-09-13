@@ -5,7 +5,7 @@ using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core
 {
-    internal class MessageBuilder
+    public class MessageBuilder
     {
         private Regex authRegex = new Regex(@"^[0-9]{6}$");
 

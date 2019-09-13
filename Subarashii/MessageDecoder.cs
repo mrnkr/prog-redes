@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Subarashii.Core
 {
-    internal class MessageDecoder
+    public class MessageDecoder
     {
         public static DecodedMessage<byte[]> Decode(byte[] message)
         {

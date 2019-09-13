@@ -1,6 +1,6 @@
 ﻿namespace Subarashii.Core
 {
-    internal class DecodedMessage<T>
+    public class DecodedMessage<T>
     {
         public bool IsResponse { get; set; }
         public string Code { get; set; }
