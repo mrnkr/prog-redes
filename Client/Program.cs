@@ -22,9 +22,9 @@ namespace SubarashiiDemo.Cli
                     });
                     Console.WriteLine(response);
                 }
-                catch
+                catch (Exception e)
                 {
-                    Console.WriteLine("Error");
+                    Console.WriteLine(e.Message);
                 }
 
                 client.Dispose();
