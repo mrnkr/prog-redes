@@ -53,6 +53,7 @@
     <Compile Include="FileUploader.cs" />
     <Compile Include="MessageBuilder.cs" />
     <Compile Include="MessageDecoder.cs" />
+    <Compile Include="Exchangers\Receiver.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

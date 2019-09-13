@@ -14,12 +14,7 @@ namespace SubarashiiDemo.Cli
             {
                 try
                 {
-                    var response = client.Send("66", new User()
-                    {
-                        Id = "220159",
-                        FirstName = "Alvaro",
-                        LastName = "Nicoli"
-                    });
+                    var response = client.SendFile("77", @"c:\Users\alvar\Pictures\tenor.gif");
                     Console.WriteLine(response);
                 }
                 catch (Exception e)

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core
@@ -29,21 +28,13 @@ namespace Subarashii.Core
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
                 Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                sender.Connect(remoteEP);
+                Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
 
-                try
-                {
-                    sender.Connect(remoteEP);
-                    Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
+                Sender = sender;
+                IsConnected = true;
 
-                    Sender = sender;
-                    IsConnected = true;
-
-                    callback();
-                }
-                catch
-                {
-                    Console.WriteLine("ERROR");
-                }
+                callback();
             }
             catch
             {
@@ -113,6 +104,42 @@ namespace Subarashii.Core
                 throw new Whaaaa();
             }
 
+            return MessageDecoder.DecodePayload(response.Payload);
+        }
+
+        public string SendFile(string code, string path)
+        {
+            using (FileStream fs = File.OpenRead(path))
+            {
+                byte[] data = new byte[1024];
+                byte[] pathPrefix = Encoding.UTF8.GetBytes(path.Split('\\').Last());
+                BitConverter.GetBytes(pathPrefix.Length).CopyTo(data, 0);
+                pathPrefix.CopyTo(data, sizeof(int));
+
+                while (fs.Read(data, pathPrefix.Length + sizeof(int), data.Length - pathPrefix.Length - sizeof(int)) > 0)
+                {
+                    var request = new MessageBuilder()
+                        .PutOperationCode(code)
+                        .MarkAsFile()
+                        .PutPayload(data)
+                        .Build();
+
+                    Console.WriteLine("Send frag");
+                    Sender.Send(request);
+
+                    Console.WriteLine("Await ACK");
+                    Receiver.ReceiveMessage(Sender);
+                }
+
+                var wrapper = new MessageBuilder()
+                    .PutOperationCode(code)
+                    .PutPayload(String.Format("FileName={0}", path.Split('\\').Last()))
+                    .Build();
+
+                Sender.Send(wrapper);
+            }
+
+            var response = Receiver.ReceiveMessage(Sender);
             return MessageDecoder.DecodePayload(response.Payload);
         }
     }
