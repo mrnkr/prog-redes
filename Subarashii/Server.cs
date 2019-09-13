@@ -41,15 +41,22 @@ namespace Subarashii.Core
                         {
                             try
                             {
-                                var decoded = ReceiveMessage(handler);
+                                var decoded = Receiver.ReceiveMessage(handler);
 
                                 if (decoded.IsFile)
                                 {
-                                    decoded = new FileUploader().SaveFileToTmpLocation(decoded, () => ReceiveMessage(handler));
+                                    Console.WriteLine("Init file transfer");
+                                    RespondToMessage(handler, decoded, "OK");
+                                    decoded = new FileUploader().SaveFileToTmpLocation(decoded, () => {
+                                        var msg = Receiver.ReceiveMessage(handler);
+                                        Console.WriteLine("Fragment received");
+                                        RespondToMessage(handler, msg, "OK");
+                                        return msg;
+                                    });
+                                    Console.WriteLine("Done");
                                 }
 
                                 var result = HandleRequest(decoded);
-
                                 RespondToMessage(handler, decoded, result);
                             }
                             catch (DeadConnectionException)
@@ -68,37 +75,6 @@ namespace Subarashii.Core
             {
 
             }
-        }
-
-        private DecodedMessage<byte[]> ReceiveMessage(Socket handler)
-        {
-            int length = -1;
-            int received = 0;
-            byte[] bytes = new byte[2048];
-
-            // An incoming connection needs to be processed.
-            while (true)
-            {
-                int bytesRec = handler.Receive(bytes, received, 2048 - received, SocketFlags.None);
-                received += bytesRec;
-
-                if (bytesRec == 0)
-                {
-                    throw new DeadConnectionException();
-                }
-
-                if (received >= sizeof(int) && length == -1)
-                {
-                    length = BitConverter.ToInt32(bytes, 0);
-                }
-
-                if (received >= length || length == 0)
-                {
-                    break;
-                }
-            }
-
-            return MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
         }
 
         private object HandleRequest(DecodedMessage<byte[]> decoded)

@@ -28,21 +28,13 @@ namespace Subarashii.Core
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
                 Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                sender.Connect(remoteEP);
+                Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
 
-                try
-                {
-                    sender.Connect(remoteEP);
-                    Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
+                Sender = sender;
+                IsConnected = true;
 
-                    Sender = sender;
-                    IsConnected = true;
-
-                    callback();
-                }
-                catch
-                {
-                    Console.WriteLine("ERROR");
-                }
+                callback();
             }
             catch
             {
@@ -128,10 +120,6 @@ namespace Subarashii.Core
 
         public string SendFile(string code, string path)
         {
-            int length = -1;
-            int received = 0;
-            byte[] bytes = new byte[1024];
-
             using (FileStream fs = File.OpenRead(path))
             {
                 byte[] data = new byte[1024];
@@ -147,7 +135,11 @@ namespace Subarashii.Core
                         .PutPayload(data)
                         .Build();
 
+                    Console.WriteLine("Send frag");
                     Sender.Send(request);
+
+                    Console.WriteLine("Await ACK");
+                    Receiver.ReceiveMessage(Sender);
                 }
 
                 var wrapper = new MessageBuilder()
@@ -158,28 +150,7 @@ namespace Subarashii.Core
                 Sender.Send(wrapper);
             }
 
-            while (true)
-            {
-                int bytesRec = Sender.Receive(bytes, received, 1024 - received, SocketFlags.None);
-                received += bytesRec;
-
-                if (received >= sizeof(int) && length == -1)
-                {
-                    length = BitConverter.ToInt32(bytes, 0);
-                }
-
-                if (received >= length)
-                {
-                    break;
-                }
-            }
-
-            var response = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
-            if (!response.IsResponse)
-            {
-                throw new Whaaaa();
-            }
-
+            var response = Receiver.ReceiveMessage(Sender);
             return MessageDecoder.DecodePayload(response.Payload);
         }
 
