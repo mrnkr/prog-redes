@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core
@@ -101,6 +100,63 @@ namespace Subarashii.Core
                 .Build();
 
             Sender.Send(request);
+
+            while (true)
+            {
+                int bytesRec = Sender.Receive(bytes, received, 1024 - received, SocketFlags.None);
+                received += bytesRec;
+
+                if (received >= sizeof(int) && length == -1)
+                {
+                    length = BitConverter.ToInt32(bytes, 0);
+                }
+
+                if (received >= length)
+                {
+                    break;
+                }
+            }
+
+            var response = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
+            if (!response.IsResponse)
+            {
+                throw new Whaaaa();
+            }
+
+            return MessageDecoder.DecodePayload(response.Payload);
+        }
+
+        public string SendFile(string code, string path)
+        {
+            int length = -1;
+            int received = 0;
+            byte[] bytes = new byte[1024];
+
+            using (FileStream fs = File.OpenRead(path))
+            {
+                byte[] data = new byte[1024];
+                byte[] pathPrefix = Encoding.UTF8.GetBytes(path.Split('\\').Last());
+                BitConverter.GetBytes(pathPrefix.Length).CopyTo(data, 0);
+                pathPrefix.CopyTo(data, sizeof(int));
+
+                while (fs.Read(data, pathPrefix.Length + sizeof(int), data.Length - pathPrefix.Length - sizeof(int)) > 0)
+                {
+                    var request = new MessageBuilder()
+                        .PutOperationCode(code)
+                        .MarkAsFile()
+                        .PutPayload(data)
+                        .Build();
+
+                    Sender.Send(request);
+                }
+
+                var wrapper = new MessageBuilder()
+                    .PutOperationCode(code)
+                    .PutPayload(String.Format("FileName={0}", path.Split('\\').Last()))
+                    .Build();
+
+                Sender.Send(wrapper);
+            }
 
             while (true)
             {
