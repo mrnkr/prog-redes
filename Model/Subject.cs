@@ -5,13 +5,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Subarashii.Model
+namespace SubarashiiDemo.Model
 {
     public class Subject
     {
         public string Name { get; set; }
-        public Dictionary<User, int> StudentsAndNotes { get; set; }
-        public string SubjectId { get; set; }
+        public string Id { get; set; }
 
     }
 }
