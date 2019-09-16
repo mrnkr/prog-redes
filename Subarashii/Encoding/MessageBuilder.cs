@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using Subarashii.Core.Exceptions;
@@ -35,17 +36,8 @@ namespace Subarashii.Core
         public MessageBuilder PutPayload<T>(T payload) where T : class
         {
             var props = typeof(T).GetProperties();
-            string payloadString = "";
 
-            foreach (var prop in props)
-            {
-                if (payloadString.Length == 0)
-                    payloadString += String.Format("{0}={1}", prop.Name, prop.GetValue(payload));
-                else
-                    payloadString += String.Format("&{0}={1}", prop.Name, prop.GetValue(payload));
-            }
-
-            Payload = Encoding.UTF8.GetBytes(payloadString);
+            Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
             return this;
@@ -62,7 +54,12 @@ namespace Subarashii.Core
         public MessageBuilder MarkAsFile()
         {
             IsFile = true;
+            return this;
+        }
 
+        public MessageBuilder MarkAsText()
+        {
+            IsFile = false;
             return this;
         }
 
@@ -101,10 +98,12 @@ namespace Subarashii.Core
             string head = String.Format("{0}{1}{2}{3}", IsResponse ? "RES" : "REQ", Code, IsFile ? "F" : "T", Auth);
             byte[] headers = Encoding.UTF8.GetBytes(head);
 
-            byte[] message = new byte[len.Length + headers.Length + Payload.Length];
+            byte[] message = new byte[len.Length + headers.Length + (Payload != null ? Payload.Length : 0)];
             len.CopyTo(message, 0);
             headers.CopyTo(message, len.Length);
-            Payload.CopyTo(message, len.Length + headers.Length);
+
+            if (Payload != null)
+                Payload.CopyTo(message, len.Length + headers.Length);
 
             return message;
         }
