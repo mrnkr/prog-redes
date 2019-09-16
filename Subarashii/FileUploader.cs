@@ -9,7 +9,7 @@ namespace Subarashii.Core
 {
     internal class FileUploader
     {
-        private static string userFolder = @"c:\Users\alvar";
+        private static string StudentFolder = @"c:\Students\alvar";
         private FileStream Fs { get; set; }
 
         public DecodedMessage<byte[]> SaveFileToTmpLocation(DecodedMessage<byte[]> decoded, Func<DecodedMessage<byte[]>> getMore)
@@ -17,7 +17,7 @@ namespace Subarashii.Core
             int pathLength = BitConverter.ToInt32(decoded.Payload, 0);
             string path = Encoding.UTF8.GetString(decoded.Payload.Skip(sizeof(int)).Take(pathLength).ToArray());
 
-            Fs = File.OpenWrite(Path.Combine(userFolder, path));
+            Fs = File.OpenWrite(Path.Combine(StudentFolder, path));
 
             while (true)
             {
