@@ -1,12 +1,11 @@
 ﻿using System;
-using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using Subarashii.Core.Exceptions;
+using Subarashii.Core.Exchangers;
 
 namespace Subarashii.Core
 {
@@ -41,23 +40,14 @@ namespace Subarashii.Core
                         {
                             try
                             {
-                                var decoded = Receiver.ReceiveMessage(handler);
+                                var decoded = Reciever.RecieveMessage(handler);
 
                                 if (decoded.IsFile)
                                 {
-                                    Console.WriteLine("Init file transfer");
-                                    RespondToMessage(handler, decoded, "OK");
-                                    decoded = new FileUploader().SaveFileToTmpLocation(decoded, () => {
-                                        var msg = Receiver.ReceiveMessage(handler);
-                                        Console.WriteLine("Fragment received");
-                                        RespondToMessage(handler, msg, "OK");
-                                        return msg;
-                                    });
-                                    Console.WriteLine("Done");
+                                    decoded = Reciever.RecieveFile(handler);
                                 }
 
-                                var result = HandleRequest(decoded);
-                                RespondToMessage(handler, decoded, result);
+                                RouteRequest(handler, decoded);
                             }
                             catch (DeadConnectionException)
                             {
@@ -77,14 +67,12 @@ namespace Subarashii.Core
             }
         }
 
-        private object HandleRequest(DecodedMessage<byte[]> decoded)
+        private void RouteRequest(Socket sock, DecodedMessage<byte[]> decoded)
         {
             var controllers = Assembly
                 .GetEntryAssembly()
                 .GetTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface && typeof(Controller).IsAssignableFrom(t));
-
-            object ret = null;
 
             foreach (var ctrl in controllers)
             {
@@ -98,50 +86,27 @@ namespace Subarashii.Core
                     continue;
                 }
 
-                ret = CallHandler(ctrl, handler, decoded);
+                CallHandler(ctrl, handler, sock, decoded);
                 break;
             }
-
-            return ret;
         }
 
-        private object CallHandler(Type ctrl, MethodInfo handler, DecodedMessage<byte[]> decoded)
+        private void CallHandler(Type ctrl, MethodInfo handler, Socket sock, DecodedMessage<byte[]> decoded)
         {
-            object ret = null;
             var ctrlInstance = Activator.CreateInstance(ctrl);
-
+            ctrl.GetMethod("SetContext").Invoke(ctrlInstance, new object[] { sock, decoded.Code });
             var castTo = handler.GetParameters().ElementAt(0).ParameterType;
 
             if (castTo != typeof(string))
             {
                 var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload, castTo);
-                ret = handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
+                handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
             }
             else
             {
                 var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload);
-                ret = handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
+                handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
             }
-
-            return ret;
-        }
-
-        private void RespondToMessage(Socket handler, DecodedMessage<byte[]> decoded, object result)
-        {
-            var responseBuilder = new MessageBuilder()
-                .MarkAsResponse()
-                .PutOperationCode(decoded.Code);
-
-            if (result.GetType() == typeof(string))
-            {
-                responseBuilder.PutPayload((string)result);
-            }
-            else
-            {
-                responseBuilder.PutPayload(result);
-            }
-
-            handler.Send(responseBuilder.Build());
         }
     }
 }

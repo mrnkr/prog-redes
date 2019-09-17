@@ -14,8 +14,21 @@ namespace SubarashiiDemo.Cli
             {
                 try
                 {
-                    var response = client.SendFile("77", @"c:\Students\alvar\Pictures\tenor.gif");
-                    Console.WriteLine(response);
+                    client.Send("66", new Student()
+                    {
+                        Id = "220159",
+                        FirstName = "Alvaro",
+                        LastName = "Nicoli"
+                    });
+                    Console.WriteLine(client.Recieve());
+
+                    //client.SendFile("77", @"c:\Users\alvar\Pictures\tenor.gif");
+                    //Console.WriteLine(client.Recieve());
+
+                    client.Send("88", "Gimme the file");
+                    Console.WriteLine(client.RecieveFile());
+
+                    Console.ReadLine();
                 }
                 catch (Exception e)
                 {
