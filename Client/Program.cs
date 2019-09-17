@@ -16,6 +16,16 @@ namespace SubarashiiDemo.Cli
                 {
                     client.Send("66", new Student()
                     {
+                        Id = "222444",
+                        FirstName = "Joselito",
+                        LastName = "Vaca"
+                    });
+                    Console.WriteLine(client.Recieve());
+
+                    client.Authenticate("220159");
+
+                    client.Send("66", new Student()
+                    {
                         Id = "220159",
                         FirstName = "Alvaro",
                         LastName = "Nicoli"

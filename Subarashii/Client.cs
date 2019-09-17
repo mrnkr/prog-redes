@@ -1,9 +1,6 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using Subarashii.Core.Exchangers;
 
 namespace Subarashii.Core
@@ -12,7 +9,7 @@ namespace Subarashii.Core
     {
         private int Port { get; set; }
         private Socket Socket { get; set; }
-        private string Auth { get; set; }
+        private string Auth { get; set; } = "------";
 
         public Client(int port)
         {
@@ -36,14 +33,25 @@ namespace Subarashii.Core
             }
             catch
             {
-                Console.WriteLine("ERROR2");
+
             }
+        }
+
+        public void Authenticate(string auth)
+        {
+            Auth = auth;
+        }
+
+        public void AnnulAuth()
+        {
+            Auth = "------";
         }
 
         public void Send(string code, string msg)
         {
             var request = new MessageBuilder()
                 .PutOperationCode(code)
+                .PutAuthInfo(Auth)
                 .PutPayload(msg)
                 .Build();
 
@@ -54,6 +62,7 @@ namespace Subarashii.Core
         {
             var request = new MessageBuilder()
                 .PutOperationCode(code)
+                .PutAuthInfo(Auth)
                 .PutPayload(payload)
                 .Build();
 
@@ -63,7 +72,8 @@ namespace Subarashii.Core
         public void SendFile(string code, string path)
         {
             var builder = new MessageBuilder()
-                .PutOperationCode(code);
+                .PutOperationCode(code)
+                .PutAuthInfo(Auth);
 
             Sender.SendFile(Socket, builder, path);
         }
