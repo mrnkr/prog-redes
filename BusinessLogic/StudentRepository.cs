@@ -5,7 +5,7 @@ using SubarashiiDemo.Model;
 
 namespace SubarashiiDemo.BusinessLogic
 {
-    public class StudentRepo : IRepository<Student>
+    public class StudentRepository : IRepository<Student>
     {
         private List<Student> Students;
         public void Add(Student objectToCreate)

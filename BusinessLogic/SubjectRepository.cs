@@ -5,7 +5,7 @@ using SubarashiiDemo.Model;
 
 namespace SubarashiiDemo.BusinessLogic
 {
-    public class SubjectRepo : IRepository<Subject>
+    public class SubjectRepository : IRepository<Subject>
     {
         private List<Subject> Subjects;
         public void Add(Subject objectToCreate)
@@ -25,8 +25,7 @@ namespace SubarashiiDemo.BusinessLogic
 
         public void Modify(Subject oldObject, Subject newObject)
         {
-            Subject toModify = Subjects.Find(v => v.Id == oldObject
-            .Id);
+            Subject toModify = Subjects.Find(v => v.Id == oldObject.Id);
             toModify.Name = newObject.Name;
         }
     }
