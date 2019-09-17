@@ -82,7 +82,7 @@ namespace Subarashii.Core
 
         public string RecieveFile()
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket);
+            DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket, true);
             return MessageDecoder.DecodePayload(response.Payload);
         }
 

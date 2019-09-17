@@ -34,7 +34,7 @@ namespace Subarashii.Core.Exchangers
             return response;
         }
 
-        public static DecodedMessage<byte[]> RecieveFile(Socket sock)
+        public static DecodedMessage<byte[]> RecieveFile(Socket sock, bool skipFirst = false)
         {
             string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             FileStream fs = null;
@@ -43,8 +43,15 @@ namespace Subarashii.Core.Exchangers
             {
                 var decoded = RecieveMessage(sock);
 
+                if (skipFirst)
+                {
+                    skipFirst = false;
+                    continue;
+                }
+
                 if (!decoded.IsFile)
                 {
+                    Console.WriteLine("Closing file");
                     fs.Close();
                     return decoded;
                 }
@@ -54,6 +61,7 @@ namespace Subarashii.Core.Exchangers
 
                 if (fs == null)
                 {
+                    Console.WriteLine("Opening file");
                     fs = File.OpenWrite(Path.Combine(userFolder, "Downloads", path));
                 }
 
