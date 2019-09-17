@@ -5,12 +5,12 @@ using SubarashiiDemo.Model;
 
 namespace SubarashiiDemo.BusinessLogic
 {
-    public class SubjectRepo : IRepo<Subject>
+    public class SubjectRepo : IRepository<Subject>
     {
-        List<Subject> Subjects;
-        public void Add(Subject ObjectToCreate)
+        private List<Subject> Subjects;
+        public void Add(Subject objectToCreate)
         {
-            Subjects.Add(ObjectToCreate);
+            Subjects.Add(objectToCreate);
         }
 
         public void Delete(Subject ObjectToDelete)
@@ -23,10 +23,11 @@ namespace SubarashiiDemo.BusinessLogic
             return Subjects;
         }
 
-        public void Modify(Subject OldObject, Subject NewObject)
+        public void Modify(Subject oldObject, Subject newObject)
         {
-            Subject toModify = Subjects.Find(v => v.Id == OldObject.Id);
-            toModify.Name = NewObject.Name;
+            Subject toModify = Subjects.Find(v => v.Id == oldObject
+            .Id);
+            toModify.Name = newObject.Name;
         }
     }
 }
