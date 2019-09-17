@@ -4,22 +4,22 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
-using Subarashii.Core.Exceptions;
+using Subarashii.Core.Exchangers;
 
 namespace Subarashii.Core
 {
     public class Client : IDisposable
     {
-        public bool IsConnected { get; set; }
         private int Port { get; set; }
-        private Socket Sender { get; set; }
+        private Socket Socket { get; set; }
+        private string Auth { get; set; }
 
         public Client(int port)
         {
             Port = port;
         }
 
-        public void Connect(Action callback)
+        public void Connect(Action onConnect)
         {
             try
             {
@@ -31,10 +31,8 @@ namespace Subarashii.Core
                 sender.Connect(remoteEP);
                 Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
 
-                Sender = sender;
-                IsConnected = true;
-
-                callback();
+                Socket = sender;
+                onConnect();
             }
             catch
             {
@@ -42,105 +40,56 @@ namespace Subarashii.Core
             }
         }
 
-        public string Send(string code, string message)
+        public void Send(string code, string msg)
         {
-      
             var request = new MessageBuilder()
                 .PutOperationCode(code)
-                .PutPayload(message)
+                .PutPayload(msg)
                 .Build();
 
-            Sender.Send(request);
-
-            return SharedCodeAndDecode();
+            Sender.SendMessage(Socket, request);
         }
 
-        public string Send<T>(string code, T payload) where T : class
+        public void Send<T>(string code, T payload) where T : class
         {
             var request = new MessageBuilder()
                 .PutOperationCode(code)
                 .PutPayload(payload)
                 .Build();
 
-            Sender.Send(request);
+            Sender.SendMessage(Socket, request);
+        }
 
-            return SharedCodeAndDecode();
+        public void SendFile(string code, string path)
+        {
+            var builder = new MessageBuilder()
+                .PutOperationCode(code);
+
+            Sender.SendFile(Socket, builder, path);
+        }
+
+        public string Recieve()
+        {
+            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            return MessageDecoder.DecodePayload(response.Payload);
+        }
+
+        public T Recieve<T>() where T : class
+        {
+            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            return MessageDecoder.DecodePayload<T>(response.Payload);
+        }
+
+        public string RecieveFile()
+        {
+            DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket, true);
+            return MessageDecoder.DecodePayload(response.Payload);
         }
 
         public void Dispose()
         {
-            // Release the socket.
-            Sender.Shutdown(SocketShutdown.Both);
-            Sender.Close();
-
-            IsConnected = false;
-        }
-
-        private string SharedCodeAndDecode()
-        {
-            int length = -1;
-            int received = 0;
-            byte[] bytes = new byte[1024];
-
-            while (true)
-            {
-                int bytesRec = Sender.Receive(bytes, received, 1024 - received, SocketFlags.None);
-                received += bytesRec;
-
-                if (received >= sizeof(int) && length == -1)
-                {
-                    length = BitConverter.ToInt32(bytes, 0);
-                }
-
-                if (received >= length)
-                {
-                    break;
-                }
-            }
-
-            var response = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
-            if (!response.IsResponse)
-            {
-                throw new Whaaaa();
-            }
-
-            return MessageDecoder.DecodePayload(response.Payload);
-        }
-
-        public string SendFile(string code, string path)
-        {
-            using (FileStream fs = File.OpenRead(path))
-            {
-                byte[] data = new byte[1024];
-                byte[] pathPrefix = Encoding.UTF8.GetBytes(path.Split('\\').Last());
-                BitConverter.GetBytes(pathPrefix.Length).CopyTo(data, 0);
-                pathPrefix.CopyTo(data, sizeof(int));
-
-                while (fs.Read(data, pathPrefix.Length + sizeof(int), data.Length - pathPrefix.Length - sizeof(int)) > 0)
-                {
-                    var request = new MessageBuilder()
-                        .PutOperationCode(code)
-                        .MarkAsFile()
-                        .PutPayload(data)
-                        .Build();
-
-                    Console.WriteLine("Send frag");
-                    Sender.Send(request);
-
-                    Console.WriteLine("Await ACK");
-                    Receiver.ReceiveMessage(Sender);
-                }
-
-                var wrapper = new MessageBuilder()
-                    .PutOperationCode(code)
-                    .PutPayload(String.Format("FileName={0}", path.Split('\\').Last()))
-                    .Build();
-
-                Sender.Send(wrapper);
-            }
-
-            var response = Receiver.ReceiveMessage(Sender);
-            return MessageDecoder.DecodePayload(response.Payload);
+            Socket.Shutdown(SocketShutdown.Both);
+            Socket.Close();
         }
     }
 }
