@@ -51,7 +51,6 @@ namespace Subarashii.Core.Exchangers
 
                 if (!decoded.IsFile)
                 {
-                    Console.WriteLine("Closing file");
                     fs.Close();
                     return decoded;
                 }
@@ -61,7 +60,6 @@ namespace Subarashii.Core.Exchangers
 
                 if (fs == null)
                 {
-                    Console.WriteLine("Opening file");
                     fs = File.OpenWrite(Path.Combine(userFolder, "Downloads", path));
                 }
 

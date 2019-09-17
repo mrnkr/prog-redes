@@ -2,7 +2,7 @@
 
 namespace Subarashii.Core.Exceptions
 {
-    class InvalidCodeException : Exception
+    public class InvalidCodeException : Exception
     {
     }
 }

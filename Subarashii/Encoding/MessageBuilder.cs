@@ -8,7 +8,7 @@ namespace Subarashii.Core
 {
     public class MessageBuilder
     {
-        private Regex authRegex = new Regex(@"^[0-9]{6}$");
+        private Regex authRegex = new Regex(@"^([0-9]{6}|[-]{6})$");
 
         private int Length { get; set; }
         private bool IsResponse { get; set; }
@@ -95,7 +95,7 @@ namespace Subarashii.Core
         {
             byte[] len = BitConverter.GetBytes(Length);
 
-            string head = String.Format("{0}{1}{2}{3}", IsResponse ? "RES" : "REQ", Code, IsFile ? "F" : "T", Auth);
+            string head = $"{(IsResponse ? "RES" : "REQ")}{Code}{(IsFile ? "F" : "T")}{Auth}";
             byte[] headers = Encoding.UTF8.GetBytes(head);
 
             byte[] message = new byte[len.Length + headers.Length + (Payload != null ? Payload.Length : 0)];

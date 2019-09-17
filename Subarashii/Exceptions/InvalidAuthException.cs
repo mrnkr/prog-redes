@@ -2,7 +2,7 @@
 
 namespace Subarashii.Core.Exceptions
 {
-    class InvalidAuthException : Exception
+    public class InvalidAuthException : Exception
     {
     }
 }
