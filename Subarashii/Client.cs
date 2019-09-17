@@ -9,11 +9,12 @@ namespace Subarashii.Core
     {
         private int Port { get; set; }
         private Socket Socket { get; set; }
-        private string Auth { get; set; } = "------";
+        private string Auth { get; set; }
 
         public Client(int port)
         {
             Port = port;
+            Auth = "------";
         }
 
         public void Connect(Action onConnect)
