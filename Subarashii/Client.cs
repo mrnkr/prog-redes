@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using Subarashii.Core.Exceptions;
 using Subarashii.Core.Exchangers;
 
 namespace Subarashii.Core
@@ -21,21 +23,26 @@ namespace Subarashii.Core
         {
             try
             {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
-
-                Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                sender.Connect(remoteEP);
+                Socket = SetupConnection();
                 Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
-
-                Socket = sender;
                 onConnect();
             }
             catch
             {
 
             }
+        }
+
+        private Socket SetupConnection()
+        {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
+
+            Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            sender.Connect(remoteEP);
+
+            return sender;
         }
 
         public void Authenticate(string auth)
@@ -95,6 +102,38 @@ namespace Subarashii.Core
         {
             DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket, true);
             return MessageDecoder.DecodePayload(response.Payload);
+        }
+
+        public void ListenToNotifications(Action<string> next)
+        {
+            if (!IsAuthenticated())
+            {
+                throw new InvalidAuthException();
+            }
+
+            var notifier = SetupConnection();
+
+            new Thread(() =>
+            {
+                var init = new MessageBuilder()
+                    .PutOperationCode("00")
+                    .PutAuthInfo(Auth)
+                    .PutPayload("NOTIFY")
+                    .Build();
+
+                Sender.SendMessage(notifier, init);
+
+                while (true)
+                {
+                    var notification = Reciever.RecieveMessage(notifier);
+                    next(MessageDecoder.DecodePayload(notification.Payload));
+                }
+            }).Start();
+        }
+
+        private bool IsAuthenticated()
+        {
+            return Auth != "------";
         }
 
         public void Dispose()

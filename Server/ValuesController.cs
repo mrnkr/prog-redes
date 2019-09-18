@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Subarashii.Core;
 using SubarashiiDemo.Model;
 
@@ -12,6 +13,14 @@ namespace SubarashiiDemo.Srv
             Console.WriteLine("Recieved order 23");
             Console.WriteLine(message);
             Console.WriteLine(auth);
+
+            new Thread(() =>
+            {
+                Thread.Sleep(10000);
+                Console.WriteLine("Send a notification please");
+                Program.Server.SendNotification(auth, "This is a notification pal!");
+            }).Start();
+
             Text("General Kenobi");
         }
 

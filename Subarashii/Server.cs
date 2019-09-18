@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -12,10 +13,12 @@ namespace Subarashii.Core
     public class Server
     {
         private int Port { get; set; }
+        private IDictionary<string, Socket> Notifiers { get; set; }
 
         public Server(int port)
         {
             Port = port;
+            Notifiers = new Dictionary<string, Socket>();
         }
 
         public void Run()
@@ -47,6 +50,12 @@ namespace Subarashii.Core
                                     decoded = Reciever.RecieveFile(handler);
                                 }
 
+                                if (decoded.Code == "00")
+                                {
+                                    Notifiers.Add(decoded.Auth, handler);
+                                    return;
+                                }
+
                                 RouteRequest(handler, decoded);
                             }
                             catch (DeadConnectionException)
@@ -65,6 +74,25 @@ namespace Subarashii.Core
             {
 
             }
+        }
+
+        public void SendNotification(string reciever, string msg)
+        {
+            Socket sock = null;
+            Notifiers.TryGetValue(reciever, out sock);
+
+            if (sock == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var notification = new MessageBuilder()
+                .PutOperationCode("00")
+                .PutPayload(msg)
+                .Build();
+
+            Sender.SendMessage(sock, notification);
+            Reciever.RecieveMessage(sock);
         }
 
         private void RouteRequest(Socket sock, DecodedMessage<byte[]> decoded)

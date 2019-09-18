@@ -38,6 +38,11 @@ namespace SubarashiiDemo.Cli
                     client.Send("88", "Gimme the file");
                     Console.WriteLine(client.RecieveFile());
 
+                    client.ListenToNotifications(msg => Console.WriteLine(msg));
+
+                    client.Send("23", "Hello there");
+                    Console.WriteLine(client.Recieve());
+
                     Console.ReadLine();
                 }
                 catch (Exception e)
