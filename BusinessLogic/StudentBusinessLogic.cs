@@ -1,4 +1,5 @@
-﻿using SubarashiiDemo.BusinessLogic;
+﻿using Model.Exceptions;
+using SubarashiiDemo.BusinessLogic;
 using SubarashiiDemo.Model;
 using System;
 using System.Collections.Generic;
@@ -22,7 +23,8 @@ namespace BusinessLogic
         public void AddFileToSubject(FileRef file, Subject sub, Student stud)
         {
             Student toMod = studentRepo.GetAll().Find(s => s.Id == sub.Id);
-
+            AddFileToDictionary(file, sub, toMod);
+            studentRepo.Modify(toMod);
         }
 
         private void AddFileToDictionary(FileRef file, Subject subj, Student stud)
@@ -35,7 +37,7 @@ namespace BusinessLogic
             }
             else
             {
-                throw new UndefinedSubjectException();
+                throw new NotEnrolledToSubjectException();
             }
             stud.Files.Add(subj, fileRefs);
         }

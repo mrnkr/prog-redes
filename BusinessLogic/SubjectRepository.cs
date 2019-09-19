@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Model.Exceptions;
 using SubarashiiDemo.Model;
 
 namespace SubarashiiDemo.BusinessLogic
@@ -15,6 +16,10 @@ namespace SubarashiiDemo.BusinessLogic
 
         public void Delete(Subject ObjectToDelete)
         {
+            if (!Exists(obj.Id))
+            {
+                throw new NonExistentSubjectException();
+            }
             Subjects.Remove(ObjectToDelete);
         }
 
@@ -25,9 +30,18 @@ namespace SubarashiiDemo.BusinessLogic
 
         public void Modify(Subject obj)
         {
+            if (!Exists(obj.Id))
+            {
+                throw new NonExistentSubjectException();
+            }
             Subject toModify = Subjects.Find(v => v.Id == obj.Id);
             Subjects.Remove(toModify);
             Subjects.Add(obj);
+        }
+
+        private bool Exists(string id)
+        {
+            return Subjects.Exists(s => s.Id == id);
         }
     }
 }
