@@ -8,19 +8,19 @@ namespace SubarashiiDemo.BusinessLogic
 {
     public class SubjectRepository : IRepository<Subject>
     {
-        private List<Subject> Subjects;
+        private List<Subject> Subjects = new List<Subject>();
         public void Add(Subject objectToCreate)
         {
             Subjects.Add(objectToCreate);
         }
 
-        public void Delete(Subject ObjectToDelete)
+        public void Delete(Subject objectToDelete)
         {
-            if (!Exists(obj.Id))
+            if (!Exists(objectToDelete.Id))
             {
                 throw new NonExistentSubjectException();
             }
-            Subjects.Remove(ObjectToDelete);
+            Subjects.Remove(objectToDelete);
         }
 
         public List<Subject> GetAll()

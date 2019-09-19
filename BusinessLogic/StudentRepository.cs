@@ -8,7 +8,7 @@ namespace SubarashiiDemo.BusinessLogic
 {
     public class StudentRepository : IRepository<Student>
     {
-        private List<Student> Students;
+        private List<Student> Students = new List<Student>();
         public void Add(Student objectToCreate)
         {
             Students.Add(objectToCreate);
@@ -29,8 +29,8 @@ namespace SubarashiiDemo.BusinessLogic
             {
                 throw new NonExistentStudentException();
             }
-            Student stud = Students.Find(p => p.Id == obj.Id);
-            Students.Remove(stud);
+            Student student= Students.Find(p => p.Id == obj.Id);
+            Students.Remove(student);
             Students.Add(obj);
         }
 
