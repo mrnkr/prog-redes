@@ -1,7 +1,10 @@
 ﻿using System;
+using System.Threading;
 using System.Net;
 using System.Net.Sockets;
+using Subarashii.Core.Exceptions;
 using Subarashii.Core.Exchangers;
+using Subarashii.PseudoRx;
 
 namespace Subarashii.Core
 {
@@ -9,32 +12,38 @@ namespace Subarashii.Core
     {
         private int Port { get; set; }
         private Socket Socket { get; set; }
-        private string Auth { get; set; } = "------";
+        private string Auth { get; set; }
 
         public Client(int port)
         {
             Port = port;
+            Auth = "------";
         }
 
         public void Connect(Action onConnect)
         {
             try
             {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
-                IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
-
-                Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                sender.Connect(remoteEP);
+                Socket = SetupConnection();
                 Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
-
-                Socket = sender;
                 onConnect();
             }
             catch
             {
 
             }
+        }
+
+        private Socket SetupConnection()
+        {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
+
+            Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+            sender.Connect(remoteEP);
+
+            return sender;
         }
 
         public void Authenticate(string auth)
@@ -78,22 +87,68 @@ namespace Subarashii.Core
             Sender.SendFile(Socket, builder, path);
         }
 
-        public string Recieve()
+        public string Receive()
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            DecodedMessage<byte[]> response = Receiver.ReceiveMessage(Socket);
             return MessageDecoder.DecodePayload(response.Payload);
         }
 
-        public T Recieve<T>() where T : class
+        public T Receive<T>() where T : class
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            DecodedMessage<byte[]> response = Receiver.ReceiveMessage(Socket);
             return MessageDecoder.DecodePayload<T>(response.Payload);
         }
 
-        public string RecieveFile()
+        public string ReceiveFile()
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket, true);
+            DecodedMessage<byte[]> response = Receiver.ReceiveFile(Socket, true);
             return MessageDecoder.DecodePayload(response.Payload);
+        }
+
+        public Subscription ListenToNotifications(Action<string> next)
+        {
+            if (!IsAuthenticated())
+            {
+                throw new InvalidAuthException();
+            }
+
+            var notifier = SetupConnection();
+
+            var t = new Thread(() =>
+            {
+                var init = new MessageBuilder()
+                    .PutOperationCode("00")
+                    .PutAuthInfo(Auth)
+                    .PutPayload("NOTIFY")
+                    .Build();
+
+                Sender.SendMessage(notifier, init);
+
+                while (true)
+                {
+                    try
+                    {
+                        var notification = Receiver.ReceiveMessage(notifier);
+                        next(MessageDecoder.DecodePayload(notification.Payload));
+                    }
+                    catch (DeadConnectionException)
+                    {
+                        break;
+                    }
+                }
+            });
+            t.Start();
+
+            return new Subscription(() =>
+            {
+                notifier.Shutdown(SocketShutdown.Both);
+                notifier.Close();
+            });
+        }
+
+        private bool IsAuthenticated()
+        {
+            return Auth != "------";
         }
 
         public void Dispose()

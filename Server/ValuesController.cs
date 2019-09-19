@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using Subarashii.Core;
 using SubarashiiDemo.Model;
 
@@ -9,16 +10,32 @@ namespace SubarashiiDemo.Srv
         [Handler("23")]
         public void ExecuteOrder23(string message, string auth)
         {
-            Console.WriteLine("Recieved order 23");
+            Console.WriteLine("Received order 23");
             Console.WriteLine(message);
             Console.WriteLine(auth);
+
+            new Thread(() =>
+            {
+                Thread.Sleep(10000);
+                Console.WriteLine("Send a notification please");
+
+                try
+                {
+                    Program.Server.SendNotification(auth, "This is a notification pal!");
+                }
+                catch
+                {
+
+                }
+            }).Start();
+
             Text("General Kenobi");
         }
 
         [Handler("66")]
         public void ExecuteOrder66(Student user, string auth)
         {
-            Console.WriteLine("Recieved order 66");
+            Console.WriteLine("Received order 66");
             Console.WriteLine($"{user.Id} - {user.FirstName} {user.LastName}");
             Console.WriteLine(auth);
             Text("It\'s not the jedi way");
@@ -27,7 +44,7 @@ namespace SubarashiiDemo.Srv
         [Handler("77")]
         public void ExecuteOrder77(string file, string auth)
         {
-            Console.WriteLine("Recieved order 77");
+            Console.WriteLine("Received order 77");
             Console.WriteLine(file);
             Text("Ok");
         }
@@ -35,7 +52,7 @@ namespace SubarashiiDemo.Srv
         [Handler("88")]
         public void ExecuteOrder88(string uselessMsg, string auth)
         {
-            Console.WriteLine("Recieved order 88");
+            Console.WriteLine("Received order 88");
             File(@"c:\Users\alvar\Pictures\tenor.gif");
         }
     }

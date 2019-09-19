@@ -51,12 +51,11 @@
     <Compile Include="Exceptions\DeadConnectionException.cs" />
     <Compile Include="Exceptions\InvalidAuthException.cs" />
     <Compile Include="Exceptions\InvalidCodeException.cs" />
-    <Compile Include="Exceptions\InvalidDecoderException.cs" />
-    <Compile Include="Exceptions\Whaaaa.cs" />
     <Compile Include="Exchangers\Sender.cs" />
     <Compile Include="Encoding\MessageBuilder.cs" />
     <Compile Include="Encoding\MessageDecoder.cs" />
-    <Compile Include="Exchangers\Reciever.cs" />
+    <Compile Include="Exchangers\Receiver.cs" />
+    <Compile Include="PseudoRx\Subscription.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
