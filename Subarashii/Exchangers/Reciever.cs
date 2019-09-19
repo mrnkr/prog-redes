@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core.Exchangers
 {
@@ -14,21 +15,29 @@ namespace Subarashii.Core.Exchangers
             int received = 0;
             byte[] bytes = new byte[1500];
 
-            while (true)
+            try
             {
-                int bytesRec = sock.Receive(bytes, received, 1500 - received, SocketFlags.None);
-                received += bytesRec;
-
-                if (received >= sizeof(int) && length == -1)
+                while (true)
                 {
-                    length = BitConverter.ToInt32(bytes, 0);
-                }
+                    int bytesRec = sock.Receive(bytes, received, 1500 - received, SocketFlags.None);
+                    received += bytesRec;
 
-                if (received >= length && length > 0)
-                {
-                    break;
+                    if (received >= sizeof(int) && length == -1)
+                    {
+                        length = BitConverter.ToInt32(bytes, 0);
+                    }
+
+                    if (received >= length && length > 0)
+                    {
+                        break;
+                    }
                 }
             }
+            catch
+            {
+                throw new DeadConnectionException();
+            }
+
 
             var response = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
             return response;

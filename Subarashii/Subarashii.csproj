@@ -55,6 +55,7 @@
     <Compile Include="Encoding\MessageBuilder.cs" />
     <Compile Include="Encoding\MessageDecoder.cs" />
     <Compile Include="Exchangers\Reciever.cs" />
+    <Compile Include="PseudoRx\Subscription.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

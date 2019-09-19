@@ -4,6 +4,7 @@ using System.Net;
 using System.Net.Sockets;
 using Subarashii.Core.Exceptions;
 using Subarashii.Core.Exchangers;
+using Subarashii.PseudoRx;
 
 namespace Subarashii.Core
 {
@@ -104,7 +105,7 @@ namespace Subarashii.Core
             return MessageDecoder.DecodePayload(response.Payload);
         }
 
-        public void ListenToNotifications(Action<string> next)
+        public Subscription ListenToNotifications(Action<string> next)
         {
             if (!IsAuthenticated())
             {
@@ -113,7 +114,7 @@ namespace Subarashii.Core
 
             var notifier = SetupConnection();
 
-            new Thread(() =>
+            var t = new Thread(() =>
             {
                 var init = new MessageBuilder()
                     .PutOperationCode("00")
@@ -125,10 +126,24 @@ namespace Subarashii.Core
 
                 while (true)
                 {
-                    var notification = Reciever.RecieveMessage(notifier);
-                    next(MessageDecoder.DecodePayload(notification.Payload));
+                    try
+                    {
+                        var notification = Reciever.RecieveMessage(notifier);
+                        next(MessageDecoder.DecodePayload(notification.Payload));
+                    }
+                    catch (DeadConnectionException)
+                    {
+                        break;
+                    }
                 }
-            }).Start();
+            });
+            t.Start();
+
+            return new Subscription(() =>
+            {
+                notifier.Shutdown(SocketShutdown.Both);
+                notifier.Close();
+            });
         }
 
         private bool IsAuthenticated()

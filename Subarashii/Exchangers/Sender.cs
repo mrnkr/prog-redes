@@ -3,6 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
+using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core.Exchangers
 {
@@ -10,7 +11,14 @@ namespace Subarashii.Core.Exchangers
     {
         public static void SendMessage(Socket sock, byte[] msg)
         {
-            sock.Send(msg);
+            try
+            {
+                sock.Send(msg);
+            }
+            catch
+            {
+                throw new DeadConnectionException();
+            }
         }
 
         public static void SendFile(Socket sock, MessageBuilder builder, string path)

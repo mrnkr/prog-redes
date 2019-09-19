@@ -91,8 +91,15 @@ namespace Subarashii.Core
                 .PutPayload(msg)
                 .Build();
 
-            Sender.SendMessage(sock, notification);
-            Reciever.RecieveMessage(sock);
+            try
+            {
+                Sender.SendMessage(sock, notification);
+                Reciever.RecieveMessage(sock);
+            }
+            catch (DeadConnectionException)
+            {
+                Notifiers.Remove(reciever);
+            }
         }
 
         private void RouteRequest(Socket sock, DecodedMessage<byte[]> decoded)
