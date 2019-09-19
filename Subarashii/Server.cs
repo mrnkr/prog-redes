@@ -43,11 +43,11 @@ namespace Subarashii.Core
                         {
                             try
                             {
-                                var decoded = Reciever.RecieveMessage(handler);
+                                var decoded = Receiver.ReceiveMessage(handler);
 
                                 if (decoded.IsFile)
                                 {
-                                    decoded = Reciever.RecieveFile(handler);
+                                    decoded = Receiver.ReceiveFile(handler);
                                 }
 
                                 if (decoded.Code == "00")
@@ -76,10 +76,10 @@ namespace Subarashii.Core
             }
         }
 
-        public void SendNotification(string reciever, string msg)
+        public void SendNotification(string receiver, string msg)
         {
             Socket sock = null;
-            Notifiers.TryGetValue(reciever, out sock);
+            Notifiers.TryGetValue(receiver, out sock);
 
             if (sock == null)
             {
@@ -94,11 +94,12 @@ namespace Subarashii.Core
             try
             {
                 Sender.SendMessage(sock, notification);
-                Reciever.RecieveMessage(sock);
+                Receiver.ReceiveMessage(sock);
             }
             catch (DeadConnectionException)
             {
-                Notifiers.Remove(reciever);
+                Notifiers.Remove(receiver);
+                throw new DeadConnectionException();
             }
         }
 

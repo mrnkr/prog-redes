@@ -87,21 +87,21 @@ namespace Subarashii.Core
             Sender.SendFile(Socket, builder, path);
         }
 
-        public string Recieve()
+        public string Receive()
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            DecodedMessage<byte[]> response = Receiver.ReceiveMessage(Socket);
             return MessageDecoder.DecodePayload(response.Payload);
         }
 
-        public T Recieve<T>() where T : class
+        public T Receive<T>() where T : class
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveMessage(Socket);
+            DecodedMessage<byte[]> response = Receiver.ReceiveMessage(Socket);
             return MessageDecoder.DecodePayload<T>(response.Payload);
         }
 
-        public string RecieveFile()
+        public string ReceiveFile()
         {
-            DecodedMessage<byte[]> response = Reciever.RecieveFile(Socket, true);
+            DecodedMessage<byte[]> response = Receiver.ReceiveFile(Socket, true);
             return MessageDecoder.DecodePayload(response.Payload);
         }
 
@@ -128,7 +128,7 @@ namespace Subarashii.Core
                 {
                     try
                     {
-                        var notification = Reciever.RecieveMessage(notifier);
+                        var notification = Receiver.ReceiveMessage(notifier);
                         next(MessageDecoder.DecodePayload(notification.Payload));
                     }
                     catch (DeadConnectionException)

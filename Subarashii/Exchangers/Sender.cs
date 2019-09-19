@@ -44,7 +44,7 @@ namespace Subarashii.Core.Exchangers
                         .Build();
 
                     SendMessage(sock, request);
-                    Reciever.RecieveMessage(sock);
+                    Receiver.ReceiveMessage(sock);
                 }
 
                 var wrapper = builder

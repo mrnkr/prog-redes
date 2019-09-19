@@ -7,9 +7,9 @@ using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core.Exchangers
 {
-    internal class Reciever
+    internal class Receiver
     {
-        public static DecodedMessage<byte[]> RecieveMessage(Socket sock)
+        public static DecodedMessage<byte[]> ReceiveMessage(Socket sock)
         {
             int length = -1;
             int received = 0;
@@ -43,14 +43,14 @@ namespace Subarashii.Core.Exchangers
             return response;
         }
 
-        public static DecodedMessage<byte[]> RecieveFile(Socket sock, bool skipFirst = false)
+        public static DecodedMessage<byte[]> ReceiveFile(Socket sock, bool skipFirst = false)
         {
             string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
             FileStream fs = null;
 
             do
             {
-                var decoded = RecieveMessage(sock);
+                var decoded = ReceiveMessage(sock);
 
                 if (skipFirst)
                 {

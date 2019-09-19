@@ -20,20 +20,20 @@ namespace SubarashiiDemo.Cli
                         FirstName = "Joselito",
                         LastName = "Vaca"
                     });
-                    Console.WriteLine(client.Recieve());
+                    Console.WriteLine(client.Receive());
 
                     client.Authenticate("220159");
 
                     //client.SendFile("77", @"c:\Users\alvar\Pictures\tenor.gif");
-                    //Console.WriteLine(client.Recieve());
+                    //Console.WriteLine(client.Receive());
 
                     client.Send("88", "Gimme the file");
-                    Console.WriteLine(client.RecieveFile());
+                    Console.WriteLine(client.ReceiveFile());
 
                     var subscription = client.ListenToNotifications(msg => Console.WriteLine(msg));
 
                     client.Send("23", "Hello there");
-                    Console.WriteLine(client.Recieve());
+                    Console.WriteLine(client.Receive());
 
                     client.Send("66", new Student()
                     {
@@ -41,15 +41,15 @@ namespace SubarashiiDemo.Cli
                         FirstName = "Alvaro",
                         LastName = "Nicoli"
                     });
-                    Console.WriteLine(client.Recieve());
+                    Console.WriteLine(client.Receive());
 
                     client.Send("23", "Hello there");
-                    Console.WriteLine(client.Recieve());
+                    Console.WriteLine(client.Receive());
 
                     subscription.Unsubscribe();
 
                     client.Send("23", "Hello there");
-                    Console.WriteLine(client.Recieve());
+                    Console.WriteLine(client.Receive());
 
                     Console.ReadLine();
                 }
