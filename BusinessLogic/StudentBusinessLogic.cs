@@ -20,18 +20,18 @@ namespace BusinessLogic
             studentRepo.Modify(studentToModify);
         }
 
-        public void AddFileToSubject(FileRef file, Subject sub, Student stud)
+        public void AddFileToSubject(FileRef file, Subject subject, Student student)
         {
-            Student toMod = studentRepo.GetAll().Find(s => s.Id == sub.Id);
-            AddFileToDictionary(file, sub, toMod);
+            Student toMod = studentRepo.GetAll().Find(s => s.Id == subject.Id);
+            AddFileToDictionary(file, subject, toMod);
             studentRepo.Modify(toMod);
         }
 
-        private void AddFileToDictionary(FileRef file, Subject subj, Student stud)
+        private void AddFileToDictionary(FileRef file, Subject subject, Student student)
         {
-            Dictionary<Subject, List<FileRef>> filesTemp = stud.Files;
+            Dictionary<Subject, List<FileRef>> filesTemp = student.Files;
             List<FileRef> fileRefs;
-            if (filesTemp.TryGetValue(subj, out fileRefs))
+            if (filesTemp.TryGetValue(subject, out fileRefs))
             {
                 fileRefs.Add(file);
             }
@@ -39,13 +39,13 @@ namespace BusinessLogic
             {
                 throw new NotEnrolledToSubjectException();
             }
-            stud.Files.Add(subj, fileRefs);
+            student.Files.Add(subject, fileRefs);
         }
 
-        private void AddIntoSubjectList(Student stud, Subject sub)
+        private void AddIntoSubjectList(Student student, Subject subject)
         {
-            stud.Grades.Add(sub, null);
-            stud.Files.Add(sub, null);
+            student.Grades.Add(subject, null);
+            student.Files.Add(subject, null);
         }
 
         
