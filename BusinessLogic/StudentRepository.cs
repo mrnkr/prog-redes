@@ -18,14 +18,11 @@ namespace SubarashiiDemo.BusinessLogic
             Students.Remove(ObjectToDelete);
         }
 
-        public void Modify(Student oldObject, Student newObject)
+        public void Modify(Student obj)
         {
-            Dictionary<Subject, int> tempGrades = oldObject.Grades;
-            Dictionary<Subject, List<FileRef>> tempFiles = oldObject.Files;
-            Students.Remove(oldObject);
-            newObject.Files = tempFiles;
-            newObject.Grades = tempGrades;
-            Students.Add(newObject);
+            Student stud = Students.Find(p => p.Id == obj.Id);
+            Students.Remove(stud);
+            Students.Add(obj);
         }
 
         public List<Student> GetAll()

@@ -7,7 +7,7 @@ namespace SubarashiiDemo.BusinessLogic
     {
         void Add(T objectToCreate);
 
-        void Modify(T oldObject, T newObject);
+        void Modify(T obj);
 
         void Delete(T objectToDelete);
 

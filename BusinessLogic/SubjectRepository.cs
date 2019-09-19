@@ -23,10 +23,11 @@ namespace SubarashiiDemo.BusinessLogic
             return Subjects;
         }
 
-        public void Modify(Subject oldObject, Subject newObject)
+        public void Modify(Subject obj)
         {
-            Subject toModify = Subjects.Find(v => v.Id == oldObject.Id);
-            toModify.Name = newObject.Name;
+            Subject toModify = Subjects.Find(v => v.Id == obj.Id);
+            Subjects.Remove(toModify);
+            Subjects.Add(obj);
         }
     }
 }
