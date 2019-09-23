@@ -9,7 +9,7 @@ namespace SubarashiiDemo.Cli
         static void Main(string[] args)
         {
             Console.ReadLine();
-            var client = new Client(8000);
+            var client = new Client("172.29.4.42", 8000);
             client.Connect(() =>
             {
                 try

@@ -26,10 +26,13 @@ namespace Subarashii.Core
             try
             {
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPAddress ipAddress = ipHostInfo.AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Single();
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
                 Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+
                 listener.Bind(remoteEP);
                 listener.Listen(8);
 

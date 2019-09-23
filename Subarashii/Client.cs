@@ -10,12 +10,14 @@ namespace Subarashii.Core
 {
     public class Client : IDisposable
     {
+        private string IpAddr { get; set; }
         private int Port { get; set; }
         private Socket Socket { get; set; }
         private string Auth { get; set; }
 
-        public Client(int port)
+        public Client(string ipAddr, int port)
         {
+            IpAddr = ipAddr;
             Port = port;
             Auth = "------";
         }
@@ -25,7 +27,7 @@ namespace Subarashii.Core
             try
             {
                 Socket = SetupConnection();
-                Console.WriteLine("Connected to server on Ricardo Port {0}", Port);
+                Console.WriteLine("Connected to server on {0}:{1}", IpAddr, Port);
                 onConnect();
             }
             catch
@@ -36,8 +38,7 @@ namespace Subarashii.Core
 
         private Socket SetupConnection()
         {
-            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-            IPAddress ipAddress = ipHostInfo.AddressList[0];
+            IPAddress ipAddress = IPAddress.Parse(IpAddr);
             IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
             Socket sender = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
