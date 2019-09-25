@@ -27,7 +27,14 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload(string payload)
         {
-            Payload = Encoding.UTF8.GetBytes(payload);
+            var p = Encoding.UTF8.GetBytes(payload);
+
+            if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
+            {
+                throw new PayloadTooLargeException();
+            }
+
+            Payload = p;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
             return this;
@@ -35,9 +42,14 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload<T>(T payload) where T : class
         {
-            var props = typeof(T).GetProperties();
+            var p = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
 
-            Payload = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
+            if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
+            {
+                throw new PayloadTooLargeException();
+            }
+
+            Payload = p;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
             return this;
@@ -45,6 +57,11 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload(byte[] payload)
         {
+            if (payload.Length >= Constants.MAX_PAYLOAD_SIZE)
+            {
+                throw new PayloadTooLargeException();
+            }
+
             Payload = payload;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
