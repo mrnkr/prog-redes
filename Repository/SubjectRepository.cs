@@ -4,7 +4,7 @@ using System.Text;
 using Model.Exceptions;
 using SubarashiiDemo.Model;
 
-namespace SubarashiiDemo.BusinessLogic
+namespace Subarashii.Repository
 {
     public class SubjectRepository : IRepository<Subject>
     {
@@ -20,7 +20,7 @@ namespace SubarashiiDemo.BusinessLogic
             {
                 throw new NonExistentSubjectException();
             }
-            Subjects.Remove(objectToDelete);
+            Subjects.Find(s => s.Id == objectToDelete.Id).IsActive = false;
         }
 
         public List<Subject> GetAll()

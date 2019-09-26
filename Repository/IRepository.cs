@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace SubarashiiDemo.BusinessLogic
+namespace Subarashii.Repository
 {
     public interface IRepository<T> where T : class
     {

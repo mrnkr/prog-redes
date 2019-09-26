@@ -4,7 +4,7 @@ using System.Text;
 using Model.Exceptions;
 using SubarashiiDemo.Model;
 
-namespace SubarashiiDemo.BusinessLogic
+namespace Subarashii.Repository
 {
     public class StudentRepository : IRepository<Student>
     {

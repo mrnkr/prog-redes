@@ -59,9 +59,9 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BusinessLogic\BusinessLogic.csproj">
+    <ProjectReference Include="..\BusinessLogic\Services.csproj">
       <Project>{8b5ffe69-883d-4cf9-9be6-83f945c2a06c}</Project>
-      <Name>BusinessLogic</Name>
+      <Name>Services</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{b3091d15-e5db-4916-8818-4c11a0abe376}</Project>
