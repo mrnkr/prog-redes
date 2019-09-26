@@ -7,8 +7,8 @@ namespace Gestion.Model
         public string FirstName { get; set; }
         public string LastName { get; set; }
 
-        public Dictionary<Subject, int?> Grades { get; set; }
+        public Dictionary<string, int?> Grades { get; set; }
 
-        public Dictionary<Subject, List<FileRef>> Files {get;set;} 
+        public Dictionary<string, List<FileRef>> Files {get;set;} 
     }
 }

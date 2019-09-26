@@ -4,8 +4,7 @@ using System.Text;
 
 namespace Subarashii.Services.Exceptions
 {
-    public class InactiveSubjectException : Exception
+    public class NoFilesInSubjectException: Exception
     {
-
     }
 }

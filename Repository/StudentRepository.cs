@@ -8,7 +8,23 @@ namespace Subarashii.Repository
 {
     public class StudentRepository : IRepository<Student>
     {
-        private List<Student> Students = new List<Student>();
+        private List<Student> Students { get; set; }
+        private static StudentRepository Instance { get; set; }
+
+        private StudentRepository()
+        {
+            Students = new List<Student>();
+        }
+
+        public static StudentRepository GetInstance()
+        {
+            if (Instance == null)
+            {
+                Instance = new StudentRepository();
+            }
+            return Instance;
+        }
+
         public void Add(Student objectToCreate)
         {
             Students.Add(objectToCreate);

@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Model", "Model\Model.csproj
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Services", "BusinessLogic\Services.csproj", "{8B5FFE69-883D-4CF9-9BE6-83F945C2A06C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BusinessLogicTest", "BusinessLogicTest\BusinessLogicTest.csproj", "{DFD1D27C-36DB-44B7-BB60-58C7D5AD6C7B}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServicesTest", "BusinessLogicTest\ServicesTest.csproj", "{DFD1D27C-36DB-44B7-BB60-58C7D5AD6C7B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Repository", "Repository\Repository.csproj", "{0D8C937D-1A94-431D-881D-27B0D3D65045}"
 EndProject

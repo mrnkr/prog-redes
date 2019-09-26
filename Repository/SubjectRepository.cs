@@ -9,6 +9,21 @@ namespace Subarashii.Repository
     public class SubjectRepository : IRepository<Subject>
     {
         private List<Subject> Subjects = new List<Subject>();
+        private static SubjectRepository Instance { get; set; }
+
+        private SubjectRepository()
+        {
+            Subjects = new List<Subject>();
+        }
+
+        public static SubjectRepository GetInstance()
+        {
+            if (Instance == null)
+            {
+                Instance = new SubjectRepository();
+            }
+            return Instance;
+        }
         public void Add(Subject objectToCreate)
         {
             Subjects.Add(objectToCreate);
