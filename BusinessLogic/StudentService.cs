@@ -4,9 +4,9 @@ using SubarashiiDemo.Model;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Subarashii.BusinessLogic.Exceptions;
+using Subarashii.Services.Exceptions;
 
-namespace Subarashii.BusinessLogic
+namespace Subarashii.Services
 {
     public class StudentService
     {
@@ -37,9 +37,9 @@ namespace Subarashii.BusinessLogic
 
         private void AddFileToDictionary(FileRef file, Subject subject, Student student)
         {
-            Dictionary<Subject, List<FileRef>> filesTemp = student.Files;
+            Dictionary<string, List<FileRef>> filesTemp = student.Files;
             List<FileRef> fileRefs;
-            if (filesTemp.TryGetValue(subject, out fileRefs))
+            if (filesTemp.TryGetValue(subject.Id, out fileRefs))
             {
                 fileRefs.Add(file);
             }
@@ -47,13 +47,13 @@ namespace Subarashii.BusinessLogic
             {
                 throw new NotEnrolledToSubjectException();
             }
-            student.Files.Add(subject, fileRefs);
+            student.Files.Add(subject.Id, fileRefs);
         }
 
         private void AddIntoSubjectList(Student student, Subject subject)
         {
-            student.Grades.Add(subject, null);
-            student.Files.Add(subject, null);
+            student.Grades.Add(subject.Id, null);
+            student.Files.Add(subject.Id, null);
         }
 
         
