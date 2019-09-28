@@ -8,8 +8,8 @@ namespace Gestion.Services
 {
     public class SubjectService
     {
-        IRepository<Subject> SubjectRepo { get; set; }
-        IRepository<Student> StudentRepo { get; set; }
+        public IRepository<Subject> SubjectRepo { get; set; }
+        public IRepository<Student> StudentRepo { get; set; }
         
         public SubjectService(IRepository<Subject> subjectRepo, IRepository<Student> studentRepo)
         {
@@ -17,15 +17,17 @@ namespace Gestion.Services
             StudentRepo = studentRepo;
         }
 
-        public void AssignGradeToStudent(Subject subject, Student student, int grade)
+        public void AssignGradeToStudent(string subjectId, string studentId, int grade)
         {
-            if (!ActiveSubject(subject.Id))
+            if (!ActiveSubject(subjectId))
                 throw new InactiveSubjectException();
-            if (!StudentHasUploadedAFileToTheSubject(subject.Id, student.Id))
-                throw new NoFilesInSubjectException();
-            if (!StudentEnlistedInTheSubject(subject.Id, student.Id))
+            if (!StudentEnlistedInTheSubject(subjectId, studentId))
                 throw new NotEnlistedException();
-            StudentRepo.GetAll().Find(s => s.Id == student.Id).Grades.Add(subject.Id, grade);
+            if (!StudentHasUploadedAFileToTheSubject(subjectId, studentId))
+                throw new NoFilesInSubjectException();
+            
+            StudentRepo.GetAll().Find(s => s.Id == studentId).Grades.Remove(subjectId);
+            StudentRepo.GetAll().Find(s => s.Id == studentId).Grades.Add(subjectId,grade);
         }
 
         private bool ActiveSubject(string subjectId)
@@ -37,11 +39,9 @@ namespace Gestion.Services
         {
             bool hasFiles = true;
             Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            try
-            {
-                stud.Files.TryGetValue(subjectId, out List<FileRef> files);
-            }
-            catch (ArgumentNullException)
+            List<FileRef> files;    
+            stud.Files.TryGetValue(subjectId, out files);
+            if (files == null)
             {
                 hasFiles = false;
             }
@@ -51,7 +51,7 @@ namespace Gestion.Services
         private bool StudentEnlistedInTheSubject(string subjectId, string studentId)
         {
             Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            return stud.Grades.ContainsKey(subjectId);
+            return stud.Files.ContainsKey(subjectId);
         }
     }
 }
