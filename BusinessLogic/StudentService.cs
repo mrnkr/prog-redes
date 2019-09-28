@@ -25,7 +25,7 @@ namespace Subarashii.Services
                 throw new InactiveSubjectException();
             Student studentToModify = StudentRepo.GetAll().Find(s => s.Id == studentId);
             Subject subjectToAdd = SubjectRepo.GetAll().Find(s => s.Id == subjectId);
-            AddIntoSubjectList(studentToModify, subjectToAdd);
+            AddToSubjectList(studentToModify, subjectToAdd);
             StudentRepo.Modify(studentToModify);
         }
 
