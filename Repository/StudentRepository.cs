@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
 using System.Collections.Generic;
-using System.Text;
-using Model.Exceptions;
-using SubarashiiDemo.Model;
 
-namespace Subarashii.Repository
+namespace Gestion.Repository
 {
     public class StudentRepository : IRepository<Student>
     {
@@ -45,7 +43,7 @@ namespace Subarashii.Repository
             {
                 throw new NonExistentStudentException();
             }
-            Student student= Students.Find(p => p.Id == obj.Id);
+            Student student = Students.Find(p => p.Id == obj.Id);
             Students.Remove(student);
             Students.Add(obj);
         }

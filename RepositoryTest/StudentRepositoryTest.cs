@@ -1,10 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Gestion.Model;
+using Gestion.Repository;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Subarashii.Repository;
-using SubarashiiDemo.Model;
+using System.Collections.Generic;
 
-namespace Subarashii.BusinessLogicTest
+namespace Gestion.Tests.Repository
 {
     [TestClass]
     public class StudentRepositoryTest

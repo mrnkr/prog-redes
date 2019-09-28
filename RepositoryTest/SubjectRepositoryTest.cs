@@ -1,13 +1,9 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Subarashii.Repository;
-using SubarashiiDemo.Model;
-using System;
+﻿using Gestion.Model;
+using Gestion.Repository;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Subarashii.RepositoryTests
+namespace Gestion.Tests.Repository
 {
     [TestClass]
     public class SubjectRepositoryTest

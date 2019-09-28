@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Model.Exceptions
+namespace Gestion.Model.Exceptions
 {
-    public class NotEnrolledToSubjectException : Exception
+    public class UndefinedSubjectException : Exception
     {
 
     }

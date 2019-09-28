@@ -1,10 +1,8 @@
-﻿using System;
+﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
 using System.Collections.Generic;
-using System.Text;
-using Model.Exceptions;
-using SubarashiiDemo.Model;
 
-namespace Subarashii.Repository
+namespace Gestion.Repository
 {
     public class SubjectRepository : IRepository<Subject>
     {

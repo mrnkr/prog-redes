@@ -1,19 +1,17 @@
-﻿using Model.Exceptions;
-using Subarashii.Repository;
-using SubarashiiDemo.Model;
-using System;
+﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
+using Gestion.Repository;
+using Gestion.Services.Exceptions;
 using System.Collections.Generic;
-using System.Text;
-using Subarashii.Services.Exceptions;
 
-namespace Subarashii.Services
+namespace Gestion.Services
 {
     public class StudentService
     {
-        StudentRepository StudentRepo;
-        SubjectRepository SubjectRepo;
+        IRepository<Student> StudentRepo { get; set; }
+        IRepository<Subject> SubjectRepo { get; set; }
 
-        public StudentService(SubjectRepository subRepo, StudentRepository studRepo)
+        public StudentService(IRepository<Subject> subRepo, IRepository<Student> studRepo)
         {
             StudentRepo = studRepo;
             SubjectRepo = subRepo;
@@ -46,7 +44,7 @@ namespace Subarashii.Services
             }
             else
             {
-                throw new NotEnrolledToSubjectException();
+                throw new UndefinedSubjectException();
             }
             student.Files.Add(subject.Id, fileRefs);
         }

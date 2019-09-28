@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace Subarashii.Services.Exceptions
+namespace Gestion.Services.Exceptions
 {
     public class InactiveSubjectException : Exception
     {

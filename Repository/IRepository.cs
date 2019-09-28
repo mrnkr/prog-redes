@@ -1,7 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace Subarashii.Repository
+namespace Gestion.Repository
 {
     public interface IRepository<T> where T : class
     {
