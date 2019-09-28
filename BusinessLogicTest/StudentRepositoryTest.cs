@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using SubarashiiDemo.BusinessLogic;
+using Subarashii.Repository;
 using SubarashiiDemo.Model;
 
 namespace Subarashii.BusinessLogicTest
@@ -10,24 +10,43 @@ namespace Subarashii.BusinessLogicTest
     public class StudentRepositoryTest
     {
 
+        [TestCleanup]
+        public void AfterEach() {
+            StudentRepository.GetInstance().GetAll().Clear();
+        }
+
         [TestMethod]
-        public void AddTest()
+        public void ShouldAddStudent()
         {
-            StudentRepository repo = new StudentRepository();
+            StudentRepository repo = StudentRepository.GetInstance();
             repo.Add(CreateStudent());
             List <Student> l = repo.GetAll();
             Assert.IsTrue(l.Exists(s => s.Id == "123456"));
         }
 
         [TestMethod]
-        public void DeleteTest() {
-            StudentRepository repo = new StudentRepository();
-            repo.Add(CreateStudent());
-            repo.Delete(CreateStudent());
+        public void ShouldDeleteStudent() {
+
+            Student coso = CreateStudent();
+            StudentRepository repo = StudentRepository.GetInstance();
+            repo.Add(coso);
+            repo.Delete(coso);
             List<Student> l = repo.GetAll();
             Assert.AreEqual(0,l.Count);
         }
 
+        [TestMethod]
+        public void ShouldModifyStudent()
+        {
+            Student coso = CreateStudent();
+            StudentRepository repo = StudentRepository.GetInstance();
+            repo.Add(coso);
+            coso.Grades.Add("1", 100);
+            repo.Modify(coso);
+            int? val = 0; ;
+            repo.GetAll().Find(s => s.Id == coso.Id).Grades.TryGetValue("1", out val);
+            Assert.AreEqual(100, val);
+        }
 
         private Student CreateStudent()
         {
@@ -35,7 +54,8 @@ namespace Subarashii.BusinessLogicTest
             student.FirstName = "Jonathan";
             student.LastName = "Joestar";
             student.Id = "123456";
-
+            student.Grades = new Dictionary<string, int?>();
+            student.Files = new Dictionary<string, List<FileRef>>();
             return student;
         }
     }
