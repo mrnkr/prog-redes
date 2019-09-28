@@ -1,13 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace SubarashiiDemo.BusinessLogic
+namespace Gestion.Repository
 {
     public interface IRepository<T> where T : class
     {
         void Add(T objectToCreate);
 
-        void Modify(T oldObject, T newObject);
+        void Modify(T obj);
 
         void Delete(T objectToDelete);
 

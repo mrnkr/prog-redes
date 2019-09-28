@@ -1,7 +1,6 @@
-﻿using System;
-using System.Linq;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Subarashii.Core;
+using System.Linq;
 
 namespace SubarashiiTests
 {
