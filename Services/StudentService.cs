@@ -27,26 +27,30 @@ namespace Gestion.Services
             StudentRepo.Modify(studentToModify);
         }
 
-        public void AddFileToSubject(FileRef file, Subject subject, Student student)
+        public void AddFileToSubject(FileRef file, string subjectId, string studentId)
         {
-            Student toMod = StudentRepo.GetAll().Find(s => s.Id == subject.Id);
-            AddFileToDictionary(file, subject, toMod);
+            Student toMod = StudentRepo.GetAll().Find(s => s.Id == studentId);
+            AddFileToDictionary(file, subjectId, toMod.Id);
             StudentRepo.Modify(toMod);
         }
 
-        private void AddFileToDictionary(FileRef file, Subject subject, Student student)
+        private void AddFileToDictionary(FileRef file, string subjectId, string studentId)
         {
-            Dictionary<string, List<FileRef>> filesTemp = student.Files;
-            List<FileRef> fileRefs;
-            if (filesTemp.TryGetValue(subject.Id, out fileRefs))
-            {
-                fileRefs.Add(file);
-            }
-            else
+            Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
+            Dictionary<string, List<FileRef>> filesTemp = stud.Files;
+            if (!stud.Files.ContainsKey(subjectId))
             {
                 throw new UndefinedSubjectException();
             }
-            student.Files.Add(subject.Id, fileRefs);
+            List<FileRef> fileRefs;
+            filesTemp.TryGetValue(subjectId, out fileRefs);
+            if (fileRefs == null)
+            {
+                fileRefs = new List<FileRef>();
+                fileRefs.Add(file);
+            }
+            stud.Files.Remove(subjectId);
+            stud.Files.Add(subjectId, fileRefs);
         }
 
         private void AddToSubjectList(Student student, Subject subject)
@@ -55,6 +59,5 @@ namespace Gestion.Services
             student.Files.Add(subject.Id, null);
         }
 
-        
     }
 }

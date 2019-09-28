@@ -20,12 +20,14 @@ namespace ServicesTests
             SubjectRepository.GetInstance().Add(subject);
             StudentRepository.GetInstance().Add(student);
         }
+
         [TestCleanup]
         public void AfterEach()
         {
             SubjectRepository.GetInstance().GetAll().Clear();
             StudentRepository.GetInstance().GetAll().Clear();
         }
+
         [TestMethod]
         [ExpectedException(typeof(InactiveSubjectException))]
         public void ShouldNotAddGradeToAnInactiveSubject()
