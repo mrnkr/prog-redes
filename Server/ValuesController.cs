@@ -1,9 +1,9 @@
-﻿using System;
-using System.Threading;
+﻿using Gestion.Model;
 using Subarashii.Core;
-using SubarashiiDemo.Model;
+using System;
+using System.Threading;
 
-namespace SubarashiiDemo.Srv
+namespace Gestion.Srv
 {
     public class ValuesController : Controller
     {
@@ -13,22 +13,6 @@ namespace SubarashiiDemo.Srv
             Console.WriteLine("Received order 23");
             Console.WriteLine(message);
             Console.WriteLine(auth);
-
-            new Thread(() =>
-            {
-                Thread.Sleep(10000);
-                Console.WriteLine("Send a notification please");
-
-                try
-                {
-                    Program.Server.SendNotification(auth, "This is a notification pal!");
-                }
-                catch
-                {
-
-                }
-            }).Start();
-
             Text("General Kenobi");
         }
 

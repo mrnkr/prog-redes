@@ -118,7 +118,7 @@ namespace Subarashii.Core
                 var handler = ctrl
                     .GetMethods()
                     .Where(m => m.GetCustomAttribute<Handler>().OperationId == decoded.Code)
-                    .First();
+                    .FirstOrDefault();
 
                 if (handler == null)
                 {

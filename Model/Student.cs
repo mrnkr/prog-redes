@@ -1,8 +1,6 @@
-﻿using SubarashiiDemo.Model;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-namespace SubarashiiDemo.Model
+namespace Gestion.Model
 {
     public class Student {
         public string Id { get; set; }

@@ -1,65 +1,45 @@
 ﻿using System;
+using SimpleRouter;
 using Subarashii.Core;
-using SubarashiiDemo.Model;
 
-namespace SubarashiiDemo.Cli
+namespace Gestion.Cli
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Console.ReadLine();
-            var client = new Client("172.29.4.42", 8000);
+            Console.Clear();
+            Console.WriteLine("Bienvenido a Gestion 3.0\nPresiona enter para conectarte...");
+            Console.ReadKey();
+
+            var client = new Client("192.168.1.3", 8000);
             client.Connect(() =>
             {
-                try
+                Console.Clear();
+                Console.WriteLine("Por favor, ingresa tu numero de estudiante y presiona enter...");
+                var auth = Console.ReadLine();
+                client.Authenticate(auth);
+                var subscription = client.ListenToNotifications(Console.WriteLine);
+
+                while (true)
                 {
-                    client.Send("66", new Student()
+                    Console.Clear();
+                    // Print menu here
+                    Console.WriteLine("Ingresa el codigo de la operacion que quieras ejecutar");
+                    var option = Console.ReadLine();
+
+                    if (option == "exit")
                     {
-                        Id = "222444",
-                        FirstName = "Joselito",
-                        LastName = "Vaca"
-                    });
-                    Console.WriteLine(client.Receive());
+                        break;
+                    }
 
-                    client.Authenticate("220159");
-
-                    //client.SendFile("77", @"c:\Users\alvar\Pictures\tenor.gif");
-                    //Console.WriteLine(client.Receive());
-
-                    client.Send("88", "Gimme the file");
-                    Console.WriteLine(client.ReceiveFile());
-
-                    var subscription = client.ListenToNotifications(msg => Console.WriteLine(msg));
-
-                    client.Send("23", "Hello there");
-                    Console.WriteLine(client.Receive());
-
-                    client.Send("66", new Student()
-                    {
-                        Id = "220159",
-                        FirstName = "Alvaro",
-                        LastName = "Nicoli"
-                    });
-                    Console.WriteLine(client.Receive());
-
-                    client.Send("23", "Hello there");
-                    Console.WriteLine(client.Receive());
-
-                    subscription.Unsubscribe();
-
-                    client.Send("23", "Hello there");
-                    Console.WriteLine(client.Receive());
-
-                    Console.ReadLine();
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
+                    Router.RouteOperation(option, new object[] { client });
+                    Console.WriteLine("Presiona enter para continuar");
+                    Console.ReadKey();
                 }
 
+                subscription.Unsubscribe();
                 client.Dispose();
-                Console.ReadLine();
             });
         }
     }
