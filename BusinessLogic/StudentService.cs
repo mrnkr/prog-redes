@@ -12,13 +12,14 @@ namespace Subarashii.Services
     {
         StudentRepository StudentRepo;
         SubjectRepository SubjectRepo;
+
         public StudentService(SubjectRepository subRepo, StudentRepository studRepo)
         {
             StudentRepo = studRepo;
             SubjectRepo = subRepo;
         }
 
-        public void EnrollIntoSubject(string studentId, string subjectId)
+        public void EnrollInSubject(string studentId, string subjectId)
         {
             if (!SubjectRepo.GetAll().Find(s => s.Id == subjectId).IsActive)
                 throw new InactiveSubjectException();
@@ -50,7 +51,7 @@ namespace Subarashii.Services
             student.Files.Add(subject.Id, fileRefs);
         }
 
-        private void AddIntoSubjectList(Student student, Subject subject)
+        private void AddToSubjectList(Student student, Subject subject)
         {
             student.Grades.Add(subject.Id, null);
             student.Files.Add(subject.Id, null);
