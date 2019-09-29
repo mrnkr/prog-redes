@@ -31,7 +31,7 @@ namespace Subarashii.Core
 
             if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
             {
-                //throw new PayloadTooLargeException();
+                throw new PayloadTooLargeException();
             }
 
             Payload = p;
@@ -46,7 +46,7 @@ namespace Subarashii.Core
 
             if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
             {
-                /////throw new PayloadTooLargeException();
+                throw new PayloadTooLargeException();
             }
 
             Payload = p;
@@ -59,7 +59,7 @@ namespace Subarashii.Core
         {
             if (payload.Length >= Constants.MAX_PAYLOAD_SIZE)
             {
-               //// throw new PayloadTooLargeException();
+              throw new PayloadTooLargeException();
             }
 
             Payload = payload;

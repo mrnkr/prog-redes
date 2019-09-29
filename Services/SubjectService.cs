@@ -21,7 +21,7 @@ namespace Gestion.Services
         {
             if (!ActiveSubject(subjectId))
                 throw new InactiveSubjectException();
-            if (!StudentEnlistedInTheSubject(subjectId, studentId))
+            if (!StudentEnrolledInTheSubject(subjectId, studentId))
                 throw new NotEnlistedException();
             if (!StudentHasUploadedAFileToTheSubject(subjectId, studentId))
                 throw new NoFilesInSubjectException();
@@ -48,7 +48,7 @@ namespace Gestion.Services
             return hasFiles;
         }
 
-        private bool StudentEnlistedInTheSubject(string subjectId, string studentId)
+        private bool StudentEnrolledInTheSubject(string subjectId, string studentId)
         {
             Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
             return stud.Files.ContainsKey(subjectId);
