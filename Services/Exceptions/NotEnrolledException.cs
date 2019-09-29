@@ -2,7 +2,7 @@
 
 namespace Gestion.Services.Exceptions
 {
-    public class NotEnlistedException : Exception
+    public class NotEnrolledException : Exception
     {
     }
 }

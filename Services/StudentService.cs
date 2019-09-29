@@ -8,8 +8,8 @@ namespace Gestion.Services
 {
     public class StudentService
     {
-        public IRepository<Student> StudentRepo { get; set; }
-        public IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; set; }
+        private IRepository<Subject> SubjectRepo { get; set; }
 
         public StudentService(IRepository<Subject> subRepo, IRepository<Student> studRepo)
         {

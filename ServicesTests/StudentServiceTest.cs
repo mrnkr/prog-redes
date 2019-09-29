@@ -1,74 +1,64 @@
-﻿using System;
-using System.Text;
-using System.Collections.Generic;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Gestion.Services.Exceptions;
-using Gestion.Services;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Gestion.Model;
-using Gestion.Repository;
 using Gestion.Model.Exceptions;
+using Gestion.Repository;
+using Gestion.Services;
+using Gestion.Services.Exceptions;
+using System.Collections.Generic;
 
-namespace ServicesTests
+namespace Gestion.Tests.Services
 {
     [TestClass]
     public class StudentServiceTest
     {
+        private IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; set; }
+        private StudentService StudentSrv { get; set; }
 
         [TestInitialize]
         public void BeforeEach()
         {
-            Student student = CreateStudent();
             Subject subject = CreateSubject();
-            SubjectRepository.GetInstance().Add(subject);
-            StudentRepository.GetInstance().Add(student);
-        }
-        [TestCleanup]
-        public void AfterEach()
-        {
-            SubjectRepository.GetInstance().GetAll().Clear();
-            StudentRepository.GetInstance().GetAll().Clear();
-        }
+            SubjectRepo = new SubjectRepository();
+            SubjectRepo.Add(subject);
 
+            Student student = CreateStudent();
+            StudentRepo = new StudentRepository();
+            StudentRepo.Add(student);
+
+            StudentSrv = new StudentService(SubjectRepo, StudentRepo);
+        }
 
         [TestMethod]
         public void ShouldEnrollCorrectly()
         {
-            StudentService service = new StudentService(SubjectRepository.GetInstance(),
-                StudentRepository.GetInstance());
-            service.EnrollInSubject("123456", "1");
-            Assert.IsTrue(service.StudentRepo.GetAll().
-                Find(s => s.Id == "123456").Grades.ContainsKey("1"));
+            StudentSrv.EnrollInSubject("123456", "1");
+            Assert.IsTrue(StudentRepo.GetAll().Find(s => s.Id == "123456").Grades.ContainsKey("1"));
         }
 
         [TestMethod]
         [ExpectedException(typeof(InactiveSubjectException))]
         public void ShouldThrowInactiveException()
         {
-            StudentService service = new StudentService(SubjectRepository.GetInstance(),
-               StudentRepository.GetInstance());
             Subject inactive = CreateSubject();
             inactive.Id = "2";
             inactive.IsActive = false;
-            service.SubjectRepo.Add(inactive);
-            service.EnrollInSubject("123456", "2");
+            SubjectRepo.Add(inactive);
+            StudentSrv.EnrollInSubject("123456", "2");
         }
 
         [TestMethod]
         [ExpectedException(typeof(UndefinedSubjectException))]
         public void ShouldThrowUndefinedException()
         {
-            StudentService service = new StudentService(SubjectRepository.GetInstance(),
-             StudentRepository.GetInstance());
-            service.AddFileToSubject(CreateFile(), "1", "123456");
+            StudentSrv.AddFileToSubject(CreateFile(), "1", "123456");
         }
 
         [TestMethod]
         public void ShouldAddFileCorrectly()
         {
-            StudentService service = new StudentService(SubjectRepository.GetInstance(),
-             StudentRepository.GetInstance());
-            service.EnrollInSubject("123456", "1");
-            service.AddFileToSubject(CreateFile(), "1", "123456");
+            StudentSrv.EnrollInSubject("123456", "1");
+            StudentSrv.AddFileToSubject(CreateFile(), "1", "123456");
         }
         private Student CreateStudent()
         {

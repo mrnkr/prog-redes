@@ -1,6 +1,6 @@
-﻿using Gestion.Model;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Gestion.Model;
 using Gestion.Repository;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
 namespace Gestion.Tests.Repository
@@ -8,18 +8,19 @@ namespace Gestion.Tests.Repository
     [TestClass]
     public class StudentRepositoryTest
     {
+        private IRepository<Student> StudentRepo { get; set; }
 
-        [TestCleanup]
-        public void AfterEach() {
-            StudentRepository.GetInstance().GetAll().Clear();
+        [TestInitialize]
+        public void BeforeEach()
+        {
+            StudentRepo = new StudentRepository();
         }
 
         [TestMethod]
         public void ShouldAddStudent()
         {
-            StudentRepository repo = StudentRepository.GetInstance();
-            repo.Add(CreateStudent());
-            List <Student> l = repo.GetAll();
+            StudentRepo.Add(CreateStudent());
+            List <Student> l = StudentRepo.GetAll();
             Assert.IsTrue(l.Exists(s => s.Id == "123456"));
         }
 
@@ -27,23 +28,21 @@ namespace Gestion.Tests.Repository
         public void ShouldDeleteStudent() {
 
             Student coso = CreateStudent();
-            StudentRepository repo = StudentRepository.GetInstance();
-            repo.Add(coso);
-            repo.Delete(coso);
-            List<Student> l = repo.GetAll();
-            Assert.AreEqual(0,l.Count);
+            StudentRepo.Add(coso);
+            StudentRepo.Delete(coso);
+            List<Student> l = StudentRepo.GetAll();
+            Assert.AreEqual(0, l.Count);
         }
 
         [TestMethod]
         public void ShouldModifyStudent()
         {
             Student coso = CreateStudent();
-            StudentRepository repo = StudentRepository.GetInstance();
-            repo.Add(coso);
+            StudentRepo.Add(coso);
             coso.Grades.Add("1", 100);
-            repo.Modify(coso);
+            StudentRepo.Modify(coso);
             int? val = 0; ;
-            repo.GetAll().Find(s => s.Id == coso.Id).Grades.TryGetValue("1", out val);
+            StudentRepo.GetAll().Find(s => s.Id == coso.Id).Grades.TryGetValue("1", out val);
             Assert.AreEqual(100, val);
         }
 

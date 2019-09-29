@@ -1,15 +1,14 @@
 ﻿using Gestion.Model;
 using Gestion.Repository;
 using Gestion.Services.Exceptions;
-using System;
 using System.Collections.Generic;
 
 namespace Gestion.Services
 {
     public class SubjectService
     {
-        public IRepository<Subject> SubjectRepo { get; set; }
-        public IRepository<Student> StudentRepo { get; set; }
+        private IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; set; }
         
         public SubjectService(IRepository<Subject> subjectRepo, IRepository<Student> studentRepo)
         {
@@ -22,7 +21,7 @@ namespace Gestion.Services
             if (!ActiveSubject(subjectId))
                 throw new InactiveSubjectException();
             if (!StudentEnrolledInTheSubject(subjectId, studentId))
-                throw new NotEnlistedException();
+                throw new NotEnrolledException();
             if (!StudentHasUploadedAFileToTheSubject(subjectId, studentId))
                 throw new NoFilesInSubjectException();
             

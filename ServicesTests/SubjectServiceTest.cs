@@ -1,82 +1,73 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Gestion.Model;
 using Gestion.Repository;
 using Gestion.Services;
 using Gestion.Services.Exceptions;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Collections.Generic;
 
-namespace ServicesTests
+namespace Gestion.Tests.Services
 {
     [TestClass]
     public class SubjectServiceTest
     {
+        private IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; set; }
+        private SubjectService SubjectSrv { get; set; }
 
         [TestInitialize]
         public void BeforeEach()
         {
-            Student student = CreateStudent();
             Subject subject = CreateSubject();
-            SubjectRepository.GetInstance().Add(subject);
-            StudentRepository.GetInstance().Add(student);
-        }
+            SubjectRepo = new SubjectRepository();
+            SubjectRepo.Add(subject);
 
-        [TestCleanup]
-        public void AfterEach()
-        {
-            SubjectRepository.GetInstance().GetAll().Clear();
-            StudentRepository.GetInstance().GetAll().Clear();
+            Student student = CreateStudent();
+            StudentRepo = new StudentRepository();
+            StudentRepo.Add(student);
+
+            SubjectSrv = new SubjectService(SubjectRepo, StudentRepo);
         }
 
         [TestMethod]
         [ExpectedException(typeof(InactiveSubjectException))]
         public void ShouldNotAddGradeToAnInactiveSubject()
         {
-            SubjectService service = new SubjectService(SubjectRepository.GetInstance()
-           , StudentRepository.GetInstance());
             Subject subject = CreateSubject();
             subject.IsActive = false;
-            SubjectRepository.GetInstance().Modify(subject);
-            service.AssignGradeToStudent("1", "123456", 100);
+            SubjectRepo.Modify(subject);
+            SubjectSrv.AssignGradeToStudent("1", "123456", 100);
         }
 
         [TestMethod]
-        [ExpectedException(typeof(NotEnlistedException))]
+        [ExpectedException(typeof(NotEnrolledException))]
         public void ShouldNotAddGradeToUnexistingRelation()
         {
-            SubjectService service = new SubjectService(SubjectRepository.GetInstance()
-          , StudentRepository.GetInstance());
-            Student eren = CreateStudent();
-            service.AssignGradeToStudent("1", "123456", 100);
+            SubjectSrv.AssignGradeToStudent("1", "123456", 100);
         }
 
         [TestMethod]
         [ExpectedException(typeof(NoFilesInSubjectException))]
         public void ShouldNotAddGradeToUnexistingFiles()
         {
-            SubjectService service = new SubjectService(SubjectRepository.GetInstance()
-          , StudentRepository.GetInstance());
             Student eren = CreateStudent();
             eren.Id = "1";
             eren.Grades.Add("1", null);
             eren.Files.Add("1", null);
-            service.StudentRepo.Add(eren);
-            service.AssignGradeToStudent("1", "1", 100);
+            StudentRepo.Add(eren);
+            SubjectSrv.AssignGradeToStudent("1", "1", 100);
         }
 
         [TestMethod]
         public void ShouldGradeCorrectly()
         {
-            SubjectService service = new SubjectService(SubjectRepository.GetInstance(),
-                StudentRepository.GetInstance());
             Student eren = CreateStudent();
             eren.Id = "1";
             eren.Grades.Add("1", null);
             eren.Files.Add("1", CreateFiles());
-            service.StudentRepo.Add(eren);
-            service.AssignGradeToStudent("1", "1", 100);
+            StudentRepo.Add(eren);
+            SubjectSrv.AssignGradeToStudent("1", "1", 100);
             int? val;
-            service.StudentRepo.GetAll().Find(s => s.Id == "1").Grades.TryGetValue("1",out val);
+            StudentRepo.GetAll().Find(s => s.Id == "1").Grades.TryGetValue("1", out val);
             Assert.AreEqual(100, val);
         }
 
