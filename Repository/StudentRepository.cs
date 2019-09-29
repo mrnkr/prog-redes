@@ -7,20 +7,10 @@ namespace Gestion.Repository
     public class StudentRepository : IRepository<Student>
     {
         private List<Student> Students { get; set; }
-        private static StudentRepository Instance { get; set; }
 
-        private StudentRepository()
+        public StudentRepository()
         {
             Students = new List<Student>();
-        }
-
-        public static StudentRepository GetInstance()
-        {
-            if (Instance == null)
-            {
-                Instance = new StudentRepository();
-            }
-            return Instance;
         }
 
         public void Add(Student objectToCreate)

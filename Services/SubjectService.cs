@@ -1,15 +1,14 @@
 ﻿using Gestion.Model;
 using Gestion.Repository;
 using Gestion.Services.Exceptions;
-using System;
 using System.Collections.Generic;
 
 namespace Gestion.Services
 {
     public class SubjectService
     {
-        IRepository<Subject> SubjectRepo { get; set; }
-        IRepository<Student> StudentRepo { get; set; }
+        private IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; set; }
         
         public SubjectService(IRepository<Subject> subjectRepo, IRepository<Student> studentRepo)
         {
@@ -17,15 +16,17 @@ namespace Gestion.Services
             StudentRepo = studentRepo;
         }
 
-        public void AssignGradeToStudent(Subject subject, Student student, int grade)
+        public void AssignGradeToStudent(string subjectId, string studentId, int grade)
         {
-            if (!ActiveSubject(subject.Id))
+            if (!ActiveSubject(subjectId))
                 throw new InactiveSubjectException();
-            if (!StudentHasUploadedAFileToTheSubject(subject.Id, student.Id))
+            if (!StudentEnrolledInTheSubject(subjectId, studentId))
+                throw new NotEnrolledException();
+            if (!StudentHasUploadedAFileToTheSubject(subjectId, studentId))
                 throw new NoFilesInSubjectException();
-            if (!StudentEnlistedInTheSubject(subject.Id, student.Id))
-                throw new NotEnlistedException();
-            StudentRepo.GetAll().Find(s => s.Id == student.Id).Grades.Add(subject.Id, grade);
+            
+            StudentRepo.GetAll().Find(s => s.Id == studentId).Grades.Remove(subjectId);
+            StudentRepo.GetAll().Find(s => s.Id == studentId).Grades.Add(subjectId,grade);
         }
 
         private bool ActiveSubject(string subjectId)
@@ -37,21 +38,19 @@ namespace Gestion.Services
         {
             bool hasFiles = true;
             Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            try
-            {
-                stud.Files.TryGetValue(subjectId, out List<FileRef> files);
-            }
-            catch (ArgumentNullException)
+            List<FileRef> files;    
+            stud.Files.TryGetValue(subjectId, out files);
+            if (files == null)
             {
                 hasFiles = false;
             }
             return hasFiles;
         }
 
-        private bool StudentEnlistedInTheSubject(string subjectId, string studentId)
+        private bool StudentEnrolledInTheSubject(string subjectId, string studentId)
         {
             Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            return stud.Grades.ContainsKey(subjectId);
+            return stud.Files.ContainsKey(subjectId);
         }
     }
 }

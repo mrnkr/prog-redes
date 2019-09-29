@@ -1,6 +1,6 @@
-﻿using Gestion.Model;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Gestion.Model;
 using Gestion.Repository;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Collections.Generic;
 
 namespace Gestion.Tests.Repository
@@ -8,42 +8,40 @@ namespace Gestion.Tests.Repository
     [TestClass]
     public class SubjectRepositoryTest
     {
+        private IRepository<Subject> SubjectRepo { get; set; }
 
-        [TestCleanup]
-        public void AfterEach()
+        [TestInitialize]
+        public void BeforeEach()
         {
-            SubjectRepository.GetInstance().GetAll().Clear();
+            SubjectRepo = new SubjectRepository();
         }
 
         [TestMethod]
         public void ShouldAddSubject()
         {
-            SubjectRepository repo = SubjectRepository.GetInstance();
-            repo.Add(CreateSubject());
-            List<Subject> l = repo.GetAll();
+            SubjectRepo.Add(CreateSubject());
+            List<Subject> l = SubjectRepo.GetAll();
             Assert.IsTrue(l.Exists(s => s.Id == "1"));
         }
 
         [TestMethod]
         public void ShouldDeleteSubject()
         {
-            SubjectRepository repo = SubjectRepository.GetInstance();
-            repo.Add(CreateSubject());
-            repo.Delete(CreateSubject());
-            List<Subject> l = repo.GetAll();
+            SubjectRepo.Add(CreateSubject());
+            SubjectRepo.Delete(CreateSubject());
+            List<Subject> l = SubjectRepo.GetAll();
             Assert.AreEqual(1, l.Count);
-            Assert.AreEqual(false, repo.GetAll().Find(s => s.Id == "1").IsActive);
+            Assert.AreEqual(false, SubjectRepo.GetAll().Find(s => s.Id == "1").IsActive);
         }
         [TestMethod]
         public void ShouldModifySubject()
         {
             Subject s = CreateSubject();
-            SubjectRepository repo = SubjectRepository.GetInstance();
-            repo.Add(s);
+            SubjectRepo.Add(s);
             s.Name = "Astrometafilofisica mechacuantica";
-            repo.Modify(s);
-            Assert.AreEqual("Astrometafilofisica mechacuantica", 
-                repo.GetAll().Find(sa => sa.Id == s.Id).Name);
+            SubjectRepo.Modify(s);
+            Assert.AreEqual("Astrometafilofisica mechacuantica",
+                SubjectRepo.GetAll().Find(sa => sa.Id == s.Id).Name);
         }
 
 
