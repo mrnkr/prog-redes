@@ -1,15 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using Gestion.Model;
+using System;
+using System.Collections.Generic;
 
 namespace Gestion.Repository
 {
-    public interface IRepository<T> where T : class
+    public interface IRepository<T> where T : BaseEntity
     {
-        void Add(T objectToCreate);
+        T Get(string id);
 
-        void Modify(T obj);
+        IEnumerable<T> GetAll();
+        IEnumerable<T> Find(Func<T, bool> predicate);
 
-        void Delete(T objectToDelete);
+        void Add(T e);
+        void AddRange(IEnumerable<T> es);
 
-        List<T> GetAll();
+        void Update(T e);
+        void UpdateRange(IEnumerable<T> es);
+
+        void Remove(T e);
+        void RemoveRange(IEnumerable<T> es);
     }
 }

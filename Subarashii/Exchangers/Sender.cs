@@ -49,7 +49,7 @@ namespace Subarashii.Core.Exchangers
 
                 var wrapper = builder
                     .MarkAsText()
-                    .PutPayload($"FileName={path.Split('\\').Last()}")
+                    .PutPayload(path.Split('\\').Last())
                     .Build();
 
                 SendMessage(sock, wrapper);

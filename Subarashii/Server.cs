@@ -102,7 +102,6 @@ namespace Subarashii.Core
             catch (DeadConnectionException)
             {
                 Notifiers.Remove(receiver);
-                throw new DeadConnectionException();
             }
         }
 

@@ -1,6 +1,10 @@
-﻿using System;
+﻿using Gestion.Cli.Exceptions;
+using Gestion.Model;
+using Helpers;
 using SimpleRouter;
 using Subarashii.Core;
+using System;
+using System.Threading;
 
 namespace Gestion.Cli
 {
@@ -12,35 +16,71 @@ namespace Gestion.Cli
             Console.WriteLine("Bienvenido a Gestion 3.0\nPresiona enter para conectarte...");
             Console.ReadKey();
 
-            var client = new Client("192.168.1.3", 8000);
+            var client = new Client("192.168.1.12", 8000);
             client.Connect(() =>
             {
-                Console.Clear();
-                Console.WriteLine("Por favor, ingresa tu numero de estudiante y presiona enter...");
-                var auth = Console.ReadLine();
-                client.Authenticate(auth);
-                var subscription = client.ListenToNotifications(Console.WriteLine);
-
-                while (true)
+                try
                 {
-                    Console.Clear();
-                    // Print menu here
-                    Console.WriteLine("Ingresa el codigo de la operacion que quieras ejecutar");
-                    var option = Console.ReadLine();
+                    AuthenticateAgainstServer(client);
+                    var subscription = client.ListenToNotifications(Console.WriteLine);
 
-                    if (option == "exit")
+                    while (true)
                     {
-                        break;
+                        Console.Clear();
+                        Router.ListPossibleOperations();
+
+                        var option = ConsolePrompts.ReadUntilValid(
+                            prompt: "Codigo de operacion",
+                            pattern: "^[0-9]+|(exit)$",
+                            errorMsg: "Favor de ingresar un numero o exit");
+
+                        if (option == "exit")
+                        {
+                            break;
+                        }
+
+                        Router.RouteOperation(option, new object[] { client });
+                        Console.WriteLine("Presiona enter para continuar");
+                        Console.ReadKey();
                     }
 
-                    Router.RouteOperation(option, new object[] { client });
-                    Console.WriteLine("Presiona enter para continuar");
-                    Console.ReadKey();
+                    subscription.Unsubscribe();
                 }
-
-                subscription.Unsubscribe();
-                client.Dispose();
+                catch (InvalidAuthException)
+                {
+                    Console.WriteLine("You don't seem to be registered, please contact the admin!");
+                    Console.WriteLine("Bye!");
+                    Thread.Sleep(2000);
+                }
+                finally
+                {
+                    client.Dispose();
+                }
             });
+        }
+
+        private static void AuthenticateAgainstServer(Client c)
+        {
+            var userId = ConsolePrompts.ReadUntilValid(
+                prompt: "Numero de estudiante",
+                pattern: "^[0-9]{6}$",
+                errorMsg: "Por favor, ingrese un numero de seis cifras. Complete con ceros a la izquierda de ser necesario.");
+
+            c.Send("01", userId);
+            var response = c.Receive();
+
+            if (response != "HELO")
+            {
+                throw new InvalidAuthException();
+            }
+
+            c.Send("02", userId);
+            var firstName = c.Receive();
+
+            Console.WriteLine($"Hello {firstName}!");
+            Thread.Sleep(1000);
+
+            c.Authenticate(userId);
         }
     }
 }

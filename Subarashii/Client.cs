@@ -131,6 +131,13 @@ namespace Subarashii.Core
                     {
                         var notification = Receiver.ReceiveMessage(notifier);
                         next(MessageDecoder.DecodePayload(notification.Payload));
+
+                        var ack = new MessageBuilder()
+                            .MarkAsResponse()
+                            .PutOperationCode("00")
+                            .PutPayload("OK")
+                            .Build();
+                        Sender.SendMessage(notifier, ack);
                     }
                     catch (DeadConnectionException)
                     {
