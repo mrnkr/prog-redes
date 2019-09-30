@@ -20,6 +20,18 @@ namespace Gestion.Srv
             server.Run();
         }
 
+        private static void PrintMenuOptions()
+        {
+            Console.WriteLine("Presione 1 para crear una nueva materia");
+            Console.WriteLine("Presione 2 para crear un alumno nuevo");
+            Console.WriteLine("Presione 3 para ver materias");
+            Console.WriteLine("Presione 4 para ver alumnos");
+            Console.WriteLine("Presione 5 para eliminar materia");
+            Console.WriteLine("Presione 6 para eliminar alumno");
+            Console.WriteLine("Presione 7 para asignar nota a alumno en una materia");
+            Console.WriteLine("Presione 8 para salir");
+        }
+
         private static void BeginInteractive(Server server)
         {
             new Thread(() =>
@@ -28,11 +40,11 @@ namespace Gestion.Srv
                 while (true)
                 {
                     Console.Clear();
-                    // Print menu here
+                    PrintMenuOptions();
                     Console.WriteLine("Ingrese codigo de operacion...");
                     var option = Console.ReadLine();
 
-                    if (option == "exit")
+                    if (option == "8")
                     {
                         Process.GetCurrentProcess().Kill();
                     }
