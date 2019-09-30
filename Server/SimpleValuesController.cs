@@ -6,6 +6,7 @@ using SimpleRouter;
 using Subarashii.Core;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace Gestion.Srv
 {
@@ -110,7 +111,7 @@ namespace Gestion.Srv
         }
         [SimpleHandler("7")]
         public void AssignGradeToStudent()
-        { 
+        {
             Console.WriteLine("Estudiantes");
             PrintStudents();
             Console.WriteLine("Materias");
@@ -135,6 +136,41 @@ namespace Gestion.Srv
             {
                 Console.WriteLine("Estudiante no esta en esa materia");
             }
+        }
+
+        [SimpleHandler("8")]
+        public void AddFile()
+        {
+            PrintSubjects();
+            Console.WriteLine("Seleccione la materia a la que desea subir un archivo");
+            string subject = Console.ReadLine();
+            FileRef fr = CreateFileRef();
+            SubjectService.UploadFile(subject, fr);
+        }
+
+        private FileRef CreateFileRef()
+        {
+            FileRef file = new FileRef();
+            OpenFileDialog opf = new OpenFileDialog();
+            opf.InitialDirectory = @"C:\";
+            opf.RestoreDirectory = true;
+            opf.Title = "Busca un archivo para subir";
+            opf.CheckFileExists = true;
+            opf.CheckPathExists = true;
+            DialogResult a = opf.ShowDialog();
+            if (a == System.Windows.Forms.DialogResult.OK)
+            {
+                Random rnd = new Random();
+                string sourceFile = opf.FileName;
+                string name = opf.SafeFileName;
+                file = new FileRef
+                {
+                    Name = name,
+                    Path = sourceFile,
+                    Id = rnd.Next(1, 4000).ToString(),
+                };
+            }
+            return file;
         }
     }
 }

@@ -29,7 +29,8 @@ namespace Gestion.Srv
             Console.WriteLine("Presione 5 para eliminar materia");
             Console.WriteLine("Presione 6 para eliminar alumno");
             Console.WriteLine("Presione 7 para asignar nota a alumno en una materia");
-            Console.WriteLine("Presione 8 para salir");
+            Console.WriteLine("Presione 8 para subir un archivo");
+            Console.WriteLine("Presione 9 para salir");
         }
 
         private static void BeginInteractive(Server server)
@@ -44,7 +45,7 @@ namespace Gestion.Srv
                     Console.WriteLine("Ingrese codigo de operacion...");
                     var option = Console.ReadLine();
 
-                    if (option == "8")
+                    if (option == "9")
                     {
                         Process.GetCurrentProcess().Kill();
                     }
