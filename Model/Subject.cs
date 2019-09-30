@@ -1,4 +1,6 @@
-﻿namespace Gestion.Model
+﻿using System.Collections.Generic;
+
+namespace Gestion.Model
 {
     public class Subject
     {
@@ -6,5 +8,6 @@
         public string Id { get; set; }
         public bool IsActive { get; set; }
 
+        public List<FileRef> Files { get; set; }
     }
 }

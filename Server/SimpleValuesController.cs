@@ -36,6 +36,7 @@ namespace Gestion.Srv
                 Name = name,
                 Id = id,
                 IsActive = true,
+                Files = new List<FileRef>(),
             };
             Context.SubjectRepository.Add(s);
             Console.WriteLine("Agregado correctamente");

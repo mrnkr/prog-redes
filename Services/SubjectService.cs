@@ -29,6 +29,13 @@ namespace Gestion.Services
             StudentRepo.GetAll().Find(s => s.Id == studentId).Grades.Add(subjectId,grade);
         }
 
+        public void UploadFile(string subjectId,FileRef file)
+        {
+            Subject sub = SubjectRepo.GetAll().Find(s => s.Id == subjectId);
+            sub.Files.Add(file);
+            SubjectRepo.Modify(sub);
+
+        }
         private bool ActiveSubject(string subjectId)
         {
             return SubjectRepo.GetAll().Find(s => s.Id == subjectId).IsActive;
