@@ -2,7 +2,7 @@
 
 namespace Subarashii.Core.Exceptions
 {
-    class Whaaaa : Exception
+    class PayloadTooLargeException : Exception
     {
     }
 }

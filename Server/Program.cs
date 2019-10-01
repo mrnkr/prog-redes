@@ -1,13 +1,58 @@
-﻿using Subarashii.Core;
+﻿using Helpers;
+using SimpleRouter;
+using Subarashii.Core;
+using System;
+using System.Configuration;
+using System.Diagnostics;
+using System.Threading;
 
-namespace SubarashiiDemo.Srv
+namespace Gestion.Srv
 {
     class Program
     {
+
         static void Main(string[] args)
         {
-            var server = new Server(8000);
+            Console.Clear();
+            Console.WriteLine("Bienvenido a Gestion 3.0\nPresiona enter para iniciar el servidor...");
+            Console.ReadLine();
+
+            var server = new Server(GetValueFromConfig<int>("port"));
+            BeginInteractive(server);
             server.Run();
+        }
+
+        private static void BeginInteractive(Server server)
+        {
+            new Thread(() =>
+            {
+                Thread.Sleep(300);
+                while (true)
+                {
+                    Console.Clear();
+                    Router.ListPossibleOperations();
+
+                    var option = ConsolePrompts.ReadUntilValid(
+                        prompt: "Codigo de operacion",
+                        pattern: "^[0-9]+|(exit)$",
+                        errorMsg: "Favor de ingresar un numero o exit");
+
+                    if (option == "exit")
+                    {
+                        Process.GetCurrentProcess().Kill();
+                    }
+
+                    Router.RouteOperation(option, new object[] { server });
+                    Console.WriteLine("Presiona enter para continuar");
+                    Console.ReadKey();
+                }
+            }).Start();
+        }
+
+        private static T GetValueFromConfig<T>(string key)
+        {
+            var value = ConfigurationManager.AppSettings.Get(key);
+            return (T)Convert.ChangeType(value, typeof(T));
         }
     }
 }

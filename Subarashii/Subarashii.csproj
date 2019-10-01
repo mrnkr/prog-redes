@@ -31,6 +31,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -44,16 +47,23 @@
     <Compile Include="Attributes\Handler.cs" />
     <Compile Include="Client.cs" />
     <Compile Include="Constants.cs" />
-    <Compile Include="DecodedMessage.cs" />
+    <Compile Include="Encoding\DecodedMessage.cs" />
+    <Compile Include="Exceptions\DeadConnectionException.cs" />
     <Compile Include="Exceptions\InvalidAuthException.cs" />
     <Compile Include="Exceptions\InvalidCodeException.cs" />
-    <Compile Include="Exceptions\InvalidDecoderException.cs" />
-    <Compile Include="Exceptions\Whaaaa.cs" />
-    <Compile Include="MessageBuilder.cs" />
-    <Compile Include="MessageDecoder.cs" />
+    <Compile Include="Exceptions\PayloadTooLargeException.cs" />
+    <Compile Include="Exceptions\OperationFailedException.cs" />
+    <Compile Include="Exchangers\Sender.cs" />
+    <Compile Include="Encoding\MessageBuilder.cs" />
+    <Compile Include="Encoding\MessageDecoder.cs" />
+    <Compile Include="Exchangers\Receiver.cs" />
+    <Compile Include="PseudoRx\Subscription.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="Controller.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

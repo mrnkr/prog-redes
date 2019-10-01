@@ -1,19 +1,24 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Threading;
+using Subarashii.Core.Exceptions;
+using Subarashii.Core.Exchangers;
 
 namespace Subarashii.Core
 {
     public class Server
     {
         private int Port { get; set; }
+        private IDictionary<string, Socket> Notifiers { get; set; }
 
         public Server(int port)
         {
             Port = port;
+            Notifiers = new Dictionary<string, Socket>();
         }
 
         public void Run()
@@ -21,92 +26,56 @@ namespace Subarashii.Core
             try
             {
                 IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList[0];
+                IPAddress ipAddress = ipHostInfo.AddressList
+                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                    .Single();
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
                 Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
 
-                try
+                listener.Bind(remoteEP);
+                listener.Listen(8);
+
+                Console.WriteLine("Listening on port {0}", Port);
+
+                while (true)
                 {
-                    listener.Bind(remoteEP);
-                    listener.Listen(8);
-
-                    Console.WriteLine("Listening on port {0}", Port);
-
-                    while (true)
-                    {
-                        // Program is suspended while waiting for an incoming connection.
-                        Socket handler = listener.Accept();
-                        new Thread(() => {
-                            bool connectionDead = false;
-
-                            while (true)
+                    Socket handler = listener.Accept();
+                    new Thread(() => {
+                        while (true)
+                        {
+                            try
                             {
-                                int length = -1;
-                                int received = 0;
-                                byte[] bytes = new byte[1024];
+                                var decoded = Receiver.ReceiveMessage(handler);
 
-                                // An incoming connection needs to be processed.
-                                while (true)
+                                if (decoded.IsFile)
                                 {
-                                    int bytesRec = handler.Receive(bytes, received, 1024 - received, SocketFlags.None);
-                                    received += bytesRec;
+                                    decoded = Receiver.ReceiveFile(handler);
+                                }
 
-                                    if (bytesRec == 0)
+                                if (decoded.Code == "00")
+                                {
+                                    if (Notifiers.ContainsKey(decoded.Auth))
                                     {
-                                        connectionDead = true;
-                                        break;
+                                        Notifiers.Remove(decoded.Auth);
                                     }
 
-                                    if (received >= sizeof(int) && length == -1)
-                                    {
-                                        length = BitConverter.ToInt32(bytes, 0);
-                                    }
-
-                                    if (received >= length)
-                                    {
-                                        break;
-                                    }
+                                    Notifiers.Add(decoded.Auth, handler);
+                                    return;
                                 }
 
-                                if (connectionDead)
-                                {
-                                    break;
-                                }
-
-                                var decoded = MessageDecoder.Decode(bytes.Skip(sizeof(int)).Take(length).ToArray());
-                                var result = HandleRequest(decoded);
-
-                                if (result.GetType() == typeof(string))
-                                {
-                                    var response = new MessageBuilder()
-                                        .MarkAsResponse()
-                                        .PutOperationCode(decoded.Code)
-                                        .PutPayload((string)result)
-                                        .Build();
-
-                                    handler.Send(response);
-                                }
-                                else
-                                {
-                                    var response = new MessageBuilder()
-                                        .MarkAsResponse()
-                                        .PutOperationCode(decoded.Code)
-                                        .PutPayload(result)
-                                        .Build();
-
-                                    handler.Send(response);
-                                }
+                                RouteRequest(handler, decoded);
                             }
+                            catch (DeadConnectionException)
+                            {
+                                Console.WriteLine("Connection is dead, closing...");
+                                break;
+                            }
+                        }
 
-                            handler.Shutdown(SocketShutdown.Both);
-                            handler.Close();
-                        }).Start();
-                    }
-                }
-                catch
-                {
-
+                        handler.Shutdown(SocketShutdown.Both);
+                        handler.Close();
+                    }).Start();
                 }
             }
             catch
@@ -115,51 +84,73 @@ namespace Subarashii.Core
             }
         }
 
-        private object HandleRequest(DecodedMessage<byte[]> decoded)
+        public void SendNotification(string receiver, string msg)
+        {
+            Socket sock = null;
+            Notifiers.TryGetValue(receiver, out sock);
+
+            if (sock == null)
+            {
+                throw new InvalidOperationException();
+            }
+
+            var notification = new MessageBuilder()
+                .PutOperationCode("00")
+                .PutPayload(msg)
+                .Build();
+
+            try
+            {
+                Sender.SendMessage(sock, notification);
+                Receiver.ReceiveMessage(sock);
+            }
+            catch (DeadConnectionException)
+            {
+                Notifiers.Remove(receiver);
+            }
+        }
+
+        private void RouteRequest(Socket sock, DecodedMessage<byte[]> decoded)
         {
             var controllers = Assembly
                 .GetEntryAssembly()
                 .GetTypes()
                 .Where(t => !t.IsAbstract && !t.IsInterface && typeof(Controller).IsAssignableFrom(t));
 
-            object ret = null;
-
             foreach (var ctrl in controllers)
             {
                 var handler = ctrl
                     .GetMethods()
+                    .Where(m => m.GetCustomAttribute<Handler>() != null)
                     .Where(m => m.GetCustomAttribute<Handler>().OperationId == decoded.Code)
-                    .First();
+                    .FirstOrDefault();
 
                 if (handler == null)
                 {
                     continue;
                 }
 
-                var ctrlInstance = Activator.CreateInstance(ctrl);
-
-                if (decoded.IsFile)
-                {
-                    ret = handler.Invoke(ctrlInstance, new object[] { decoded.Payload, decoded.Auth });
-                }
-                else
-                {
-                    var castTo = handler.GetParameters().ElementAt(0).ParameterType;
-                    
-                    if (castTo != typeof(string))
-                    {
-                        var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload, castTo);
-                        ret = handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
-                    }
-                    else
-                    {
-                        var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload);
-                        ret = handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
-                    }
-                }
+                CallHandler(ctrl, handler, sock, decoded);
+                break;
             }
+        }
 
-            return ret;
+        private void CallHandler(Type ctrl, MethodInfo handler, Socket sock, DecodedMessage<byte[]> decoded)
+        {
+            var ctrlInstance = Activator.CreateInstance(ctrl);
+            ctrl.GetMethod("SetContext").Invoke(ctrlInstance, new object[] { sock, decoded.Code });
+            var castTo = handler.GetParameters().ElementAt(0).ParameterType;
+
+            if (castTo != typeof(string))
+            {
+                var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload, castTo);
+                handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
+            }
+            else
+            {
+                var decodedPayload = MessageDecoder.DecodePayload(decoded.Payload);
+                handler.Invoke(ctrlInstance, new object[] { decodedPayload, decoded.Auth });
+            }
         }
     }
 }

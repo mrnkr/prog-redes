@@ -2,7 +2,7 @@
 
 namespace Subarashii.Core.Exceptions
 {
-    public class InvalidAuthException : Exception
+    public class DeadConnectionException : Exception
     {
     }
 }

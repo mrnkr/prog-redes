@@ -1,13 +1,14 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Text;
 using System.Text.RegularExpressions;
 using Subarashii.Core.Exceptions;
 
 namespace Subarashii.Core
 {
-    internal class MessageBuilder
+    public class MessageBuilder
     {
-        private Regex authRegex = new Regex(@"^[0-9]{6}$");
+        private Regex authRegex = new Regex(@"^([0-9]{6}|[-]{6})$");
 
         private int Length { get; set; }
         private bool IsResponse { get; set; }
@@ -26,7 +27,14 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload(string payload)
         {
-            Payload = Encoding.UTF8.GetBytes(payload);
+            var p = Encoding.UTF8.GetBytes(payload);
+
+            if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
+            {
+                throw new PayloadTooLargeException();
+            }
+
+            Payload = p;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
             return this;
@@ -34,18 +42,14 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload<T>(T payload) where T : class
         {
-            var props = typeof(T).GetProperties();
-            string payloadString = "";
+            var p = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(payload));
 
-            foreach (var prop in props)
+            if (p.Length >= Constants.MAX_PAYLOAD_SIZE)
             {
-                if (payloadString.Length == 0)
-                    payloadString += String.Format("{0}={1}", prop.Name, prop.GetValue(payload));
-                else
-                    payloadString += String.Format("&{0}={1}", prop.Name, prop.GetValue(payload));
+                throw new PayloadTooLargeException();
             }
 
-            Payload = Encoding.UTF8.GetBytes(payloadString);
+            Payload = p;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
             return this;
@@ -53,6 +57,11 @@ namespace Subarashii.Core
 
         public MessageBuilder PutPayload(byte[] payload)
         {
+            if (payload.Length >= Constants.MAX_PAYLOAD_SIZE)
+            {
+              throw new PayloadTooLargeException();
+            }
+
             Payload = payload;
             Length = Constants.HEADER_LENGTH + Payload.Length;
 
@@ -62,7 +71,12 @@ namespace Subarashii.Core
         public MessageBuilder MarkAsFile()
         {
             IsFile = true;
+            return this;
+        }
 
+        public MessageBuilder MarkAsText()
+        {
+            IsFile = false;
             return this;
         }
 
@@ -98,13 +112,15 @@ namespace Subarashii.Core
         {
             byte[] len = BitConverter.GetBytes(Length);
 
-            string head = String.Format("{0}{1}{2}{3}", IsResponse ? "RES" : "REQ", Code, IsFile ? "F" : "T", Auth);
+            string head = $"{(IsResponse ? "RES" : "REQ")}{Code}{(IsFile ? "F" : "T")}{Auth}";
             byte[] headers = Encoding.UTF8.GetBytes(head);
 
-            byte[] message = new byte[len.Length + headers.Length + Payload.Length];
+            byte[] message = new byte[len.Length + headers.Length + (Payload != null ? Payload.Length : 0)];
             len.CopyTo(message, 0);
             headers.CopyTo(message, len.Length);
-            Payload.CopyTo(message, len.Length + headers.Length);
+
+            if (Payload != null)
+                Payload.CopyTo(message, len.Length + headers.Length);
 
             return message;
         }
