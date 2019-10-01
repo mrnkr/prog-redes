@@ -1,8 +1,7 @@
-﻿using Gestion.Cli.Exceptions;
-using Gestion.Model;
-using Helpers;
+﻿using Helpers;
 using SimpleRouter;
 using Subarashii.Core;
+using Subarashii.Core.Exceptions;
 using System;
 using System.Threading;
 
@@ -16,7 +15,7 @@ namespace Gestion.Cli
             Console.WriteLine("Bienvenido a Gestion 3.0\nPresiona enter para conectarte...");
             Console.ReadKey();
 
-            var client = new Client("192.168.1.12", 8000);
+            var client = new Client("192.168.1.3", 8000);
             client.Connect(() =>
             {
                 try
@@ -39,7 +38,15 @@ namespace Gestion.Cli
                             break;
                         }
 
-                        Router.RouteOperation(option, new object[] { client });
+                        try
+                        {
+                            Router.RouteOperation(option, new object[] { client });
+                        }
+                        catch (OperationFailedException)
+                        {
+                            Console.WriteLine("Ha ocurrido un error, la operacion se ha cancelado");
+                        }
+
                         Console.WriteLine("Presiona enter para continuar");
                         Console.ReadKey();
                     }
@@ -48,8 +55,8 @@ namespace Gestion.Cli
                 }
                 catch (InvalidAuthException)
                 {
-                    Console.WriteLine("You don't seem to be registered, please contact the admin!");
-                    Console.WriteLine("Bye!");
+                    Console.WriteLine("No pareces estar registrado, contacta a un admin!");
+                    Console.WriteLine("Adios!");
                     Thread.Sleep(2000);
                 }
                 finally
@@ -61,26 +68,25 @@ namespace Gestion.Cli
 
         private static void AuthenticateAgainstServer(Client c)
         {
-            var userId = ConsolePrompts.ReadUntilValid(
-                prompt: "Numero de estudiante",
-                pattern: "^[0-9]{6}$",
-                errorMsg: "Por favor, ingrese un numero de seis cifras. Complete con ceros a la izquierda de ser necesario.");
+            try
+            {
+                var userId = ConsolePrompts.ReadUntilValid(
+                    prompt: "Numero de estudiante",
+                    pattern: "^[0-9]{6}$",
+                    errorMsg: "Por favor, ingrese un numero de seis cifras. Complete con ceros a la izquierda de ser necesario.");
 
-            c.Send("01", userId);
-            var response = c.Receive();
+                c.Send("01", userId);
+                var firstName = c.Receive();
 
-            if (response != "HELO")
+                Console.WriteLine($"Hello {firstName}!");
+                Thread.Sleep(1000);
+
+                c.Authenticate(userId);
+            }
+            catch (OperationFailedException)
             {
                 throw new InvalidAuthException();
             }
-
-            c.Send("02", userId);
-            var firstName = c.Receive();
-
-            Console.WriteLine($"Hello {firstName}!");
-            Thread.Sleep(1000);
-
-            c.Authenticate(userId);
         }
     }
 }

@@ -45,13 +45,7 @@ namespace Gestion.Cli
                 max: subjects.Count());
 
             Client.Send("04", subjects.ElementAt(option - 1).Id);
-            var result = Client.Receive();
-
-            if (result != "OK")
-            {
-                Console.WriteLine("Ha ocurrido un error, intente nuevamente");
-                return;
-            }
+            Client.Receive();
             
             Console.WriteLine("Esta usted inscripto");
         }
@@ -115,11 +109,7 @@ namespace Gestion.Cli
             var fileRef = Client.Receive<FileRef>();
 
             Client.Send("06", Tuple.Create(subject.Id, fileRef));
-            if (Client.Receive() != "OK")
-            {
-                Console.WriteLine("Ha ocurrido un error, intente nuevamente");
-                return;
-            }
+            Client.Receive();
 
             Console.WriteLine("Archivo subido con exito!");
         }

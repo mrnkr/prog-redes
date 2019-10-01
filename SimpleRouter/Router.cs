@@ -68,9 +68,16 @@ namespace SimpleRouter
 
         private static bool CallHandler(Type ctrl, MethodInfo handler, object[] inject)
         {
-            var ctrlInstance = Activator.CreateInstance(ctrl, inject);
-            handler.Invoke(ctrlInstance, new object[] { });
-            return true;
+            try
+            {
+                var ctrlInstance = Activator.CreateInstance(ctrl, inject);
+                handler.Invoke(ctrlInstance, new object[] { });
+                return true;
+            }
+            catch (TargetInvocationException e)
+            {
+                throw e.InnerException;
+            }
         }
     }
 }

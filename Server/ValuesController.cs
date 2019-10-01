@@ -10,53 +10,50 @@ namespace Gestion.Srv
     public class ValuesController : Controller
     {
         [Handler("01")]
-        public void VerifyStudentExists(string studentId, string auth)
+        public void VerifyStudent(string studentId, string auth)
         {
-            var studentService = Context.GetInstance().StudentService;
-            var studentExists = studentService.StudentDoesExist(studentId);
-            
-            if (studentExists)
+            try
             {
-                Text("HELO");
+                var studentService = Context.GetInstance().StudentService;
+                var student = studentService.GetStudentById(studentId);
+                Text(student.FirstName);
             }
-            else
+            catch
             {
-                Text("BYE!");
+                Error();
             }
-        }
-
-        [Handler("02")]
-        public void GetStudentsName(string studentId, string auth)
-        {
-            var studentService = Context.GetInstance().StudentService;
-            var student = studentService.GetStudentById(studentId);
-            Text(student.FirstName);
         }
 
         [Handler("03")]
         public void GetSubjects(string scope, string auth)
         {
-            var subjectService = Context.GetInstance().SubjectService;
-            var studentService = Context.GetInstance().StudentService;
-
-            switch (scope)
+            try
             {
-                case "ALL":
-                    Object(subjectService.GetAllSubjects());
-                    break;
-                case "MINE":
-                    Object(studentService.GetSubjectsStudentIsEnrolledIn(auth));
-                    break;
-                case "ALL_WITH_STATUS":
-                    Object(studentService.GetSubjectsAndStatusAccordingToStudent(auth));
-                    break;
-                case "NOT_MINE":
-                    var subjectsUserIsEnrolledIn = studentService.GetSubjectsStudentIsEnrolledIn(auth).Select(s => s.Id);
-                    Object(subjectService.GetAllSubjects().Where(s => !subjectsUserIsEnrolledIn.Contains(s.Id)));
-                    break;
-                default:
-                    Object(new { Error = "Wrong scope" });
-                    break;
+                var subjectService = Context.GetInstance().SubjectService;
+                var studentService = Context.GetInstance().StudentService;
+
+                switch (scope)
+                {
+                    case "ALL":
+                        Object(subjectService.GetAllSubjects());
+                        break;
+                    case "MINE":
+                        Object(studentService.GetSubjectsStudentIsEnrolledIn(auth));
+                        break;
+                    case "ALL_WITH_STATUS":
+                        Object(studentService.GetSubjectsAndStatusAccordingToStudent(auth));
+                        break;
+                    case "NOT_MINE":
+                        var subjectsUserIsEnrolledIn = studentService.GetSubjectsStudentIsEnrolledIn(auth).Select(s => s.Id);
+                        Object(subjectService.GetAllSubjects().Where(s => !subjectsUserIsEnrolledIn.Contains(s.Id)));
+                        break;
+                    default:
+                        throw new Exception();
+                }
+            }
+            catch
+            {
+                Error();
             }
         }
 
@@ -71,37 +68,43 @@ namespace Gestion.Srv
             }
             catch
             {
-                Text("ERROR");
+                Error();
             }
         }
 
         [Handler("05")]
         public void UploadFile(string fileName, string auth)
         {
-            string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            var src = Path.Combine(userFolder, "Downloads", fileName);
-
-            if (auth == "------")
+            try
             {
-                System.IO.File.Delete(src);
-                Object(new { Error = "Not authenticated" });
-                return;
+                string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+                var src = Path.Combine(userFolder, "Downloads", fileName);
+
+                if (auth == "------")
+                {
+                    System.IO.File.Delete(src);
+                    throw new Exception();
+                }
+
+                var destDir = Path.Combine(userFolder, "Downloads", auth);
+                var dest = Path.Combine(destDir, fileName);
+
+                if (!Directory.Exists(destDir))
+                {
+                    Directory.CreateDirectory(destDir);
+                }
+
+                System.IO.File.Move(src, dest);
+                Object(new FileRef()
+                {
+                    Name = fileName,
+                    Path = dest
+                });
             }
-
-            var destDir = Path.Combine(userFolder, "Downloads", auth);
-            var dest = Path.Combine(destDir, fileName);
-
-            if (!Directory.Exists(destDir))
+            catch
             {
-                Directory.CreateDirectory(destDir);
+                Error();
             }
-
-            System.IO.File.Move(src, dest);
-            Object(new FileRef()
-            {
-                Name = fileName,
-                Path = dest
-            });
         }
 
         [Handler("06")]
@@ -124,20 +127,27 @@ namespace Gestion.Srv
         [Handler("07")]
         public void GetGradesForStudent(string scope, string auth)
         {
-            IDictionary<string, int> ret = new Dictionary<string, int>();
-            var studentService = Context.GetInstance().StudentService;
-            var subjectService = Context.GetInstance().SubjectService;
-
-            var student = studentService.GetStudentById(auth);
-            var subjects = student.GetGrades();
-
-            foreach (var s in subjects)
+            try
             {
-                var subject = subjectService.GetSubjectById(s.Key);
-                ret.Add(subject.Name, s.Value);
-            }
+                IDictionary<string, int> ret = new Dictionary<string, int>();
+                var studentService = Context.GetInstance().StudentService;
+                var subjectService = Context.GetInstance().SubjectService;
 
-            Object(ret);
+                var student = studentService.GetStudentById(auth);
+                var subjects = student.GetGrades();
+
+                foreach (var s in subjects)
+                {
+                    var subject = subjectService.GetSubjectById(s.Key);
+                    ret.Add(subject.Name, s.Value);
+                }
+
+                Object(ret);
+            }
+            catch
+            {
+                Error();
+            }
         }
     }
 }

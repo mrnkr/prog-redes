@@ -17,19 +17,6 @@ namespace Gestion.Services
             SubjectRepo = subRepo;
         }
 
-        public bool StudentDoesExist(string studentId)
-        {
-            try
-            {
-                StudentRepo.Get(studentId);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public Student GetStudentById(string studentId)
         {
             return StudentRepo.Get(studentId);

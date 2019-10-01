@@ -60,5 +60,10 @@ namespace Subarashii.Core
 
             Sender.SendFile(Socket, builder, path);
         }
+
+        protected void Error()
+        {
+            Text("ERROR");
+        }
     }
 }
