@@ -1,4 +1,5 @@
 ﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
 using Helpers;
 using SimpleRouter;
 using Subarashii.Core;
@@ -19,6 +20,8 @@ namespace Gestion.Srv
         [SimpleHandler("1", "Registrar nuevo estudiante")]
         public void SignupStudent()
         {
+            var studentService = Context.GetInstance().StudentService;
+
             Console.Clear();
             Console.WriteLine("Registro de estudiante");
             Console.WriteLine("----------------------");
@@ -44,8 +47,16 @@ namespace Gestion.Srv
                 LastName = lastName
             };
 
-            var studentService = Context.GetInstance().StudentService;
-            studentService.SignupStudent(student);
+            Console.WriteLine("");
+
+            try
+            {
+                studentService.SignupStudent(student);
+            }
+            catch (DuplicateEntityException)
+            {
+                Console.WriteLine("Un estudiante con ese numero ya existe, cancelando la operacion...");
+            }
         }
 
         [SimpleHandler("2", "Registrar nueva materia")]
@@ -68,6 +79,7 @@ namespace Gestion.Srv
 
             var subjectService = Context.GetInstance().SubjectService;
             subjectService.RegisterSubject(subject);
+            Console.WriteLine("");
         }
 
         [SimpleHandler("3", "Borrar materia")]
@@ -97,6 +109,7 @@ namespace Gestion.Srv
 
             var subject = subjects.ElementAt(option - 1);
             subjectService.RemoveSubject(subject.Id);
+            Console.WriteLine("");
         }
 
         [SimpleHandler("4", "Ver cursos disponibles")]
@@ -117,6 +130,7 @@ namespace Gestion.Srv
             }
 
             ConsolePrompts.PrintListWithIndices(subjects.Select(s => s.Name));
+            Console.WriteLine("");
         }
 
         [SimpleHandler("5", "Calificar alumno")]
@@ -179,6 +193,7 @@ namespace Gestion.Srv
 
             studentService.GradeStudent(student.Id, subject.Id, grade);
             Srv.SendNotification(student.Id, $"Has recibido una calificacion! Sacaste {grade} en {subject.Name}");
+            Console.WriteLine("");
             Console.WriteLine($"Se notifico a {student.LastName}, {student.FirstName} que su nota para {subject.Name} fue {grade}");
         }
     }

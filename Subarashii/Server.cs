@@ -55,6 +55,11 @@ namespace Subarashii.Core
 
                                 if (decoded.Code == "00")
                                 {
+                                    if (Notifiers.ContainsKey(decoded.Auth))
+                                    {
+                                        Notifiers.Remove(decoded.Auth);
+                                    }
+
                                     Notifiers.Add(decoded.Auth, handler);
                                     return;
                                 }

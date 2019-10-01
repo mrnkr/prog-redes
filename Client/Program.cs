@@ -78,7 +78,7 @@ namespace Gestion.Cli
                 c.Send("01", userId);
                 var firstName = c.Receive();
 
-                Console.WriteLine($"Hello {firstName}!");
+                Console.WriteLine($"Hola {firstName}!");
                 Thread.Sleep(1000);
 
                 c.Authenticate(userId);
