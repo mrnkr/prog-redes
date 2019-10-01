@@ -42,9 +42,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="BaseEntity.cs" />
-    <Compile Include="Exceptions\NonExistentFileException.cs" />
-    <Compile Include="Exceptions\NonExistentSubjectException.cs" />
-    <Compile Include="Exceptions\NonExistentStudentException.cs" />
+    <Compile Include="Exceptions\DuplicateEntityException.cs" />
+    <Compile Include="Exceptions\NonExistentEntityException.cs" />
     <Compile Include="Exceptions\StudentNotEnrolledException.cs" />
     <Compile Include="FileRef.cs" />
     <Compile Include="Subject.cs" />

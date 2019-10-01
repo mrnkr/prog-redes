@@ -1,5 +1,5 @@
 ﻿using Gestion.Model;
-using Gestion.Repository.Exceptions;
+using Gestion.Model.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,15 +48,12 @@ namespace Gestion.Repository
         {
             lock (Data)
             {
-                Data.Add(e.Id, e);
-            }
-        }
+                if (Data.ContainsKey(e.Id))
+                {
+                    throw new DuplicateEntityException();
+                }
 
-        public void AddRange(IEnumerable<T> es)
-        {
-            foreach (var e in es)
-            {
-                Add(e);
+                Data.Add(e.Id, e);
             }
         }
 
@@ -64,16 +61,13 @@ namespace Gestion.Repository
         {
             lock (Data)
             {
+                if (!Data.ContainsKey(e.Id))
+                {
+                    throw new NonExistentEntityException();
+                }
+
                 Data.Remove(e.Id);
                 Data.Add(e.Id, e);
-            }
-        }
-
-        public void UpdateRange(IEnumerable<T> es)
-        {
-            foreach (var e in es)
-            {
-                Update(e);
             }
         }
 
@@ -81,15 +75,12 @@ namespace Gestion.Repository
         {
             lock (Data)
             {
-                Data.Remove(e.Id);
-            }
-        }
+                if (!Data.ContainsKey(e.Id))
+                {
+                    throw new NonExistentEntityException();
+                }
 
-        public void RemoveRange(IEnumerable<T> es)
-        {
-            foreach (var e in es)
-            {
-                Remove(e);
+                Data.Remove(e.Id);
             }
         }
     }

@@ -2,7 +2,7 @@
 
 namespace Gestion.Model.Exceptions
 {
-    public class NonExistentFileException : Exception
+    public class DuplicateEntityException : Exception
     {
     }
 }

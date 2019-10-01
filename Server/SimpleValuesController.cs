@@ -1,4 +1,6 @@
 ﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
+using Gestion.Services;
 using Helpers;
 using SimpleRouter;
 using Subarashii.Core;
@@ -10,10 +12,14 @@ namespace Gestion.Srv
     public class SimpleValuesController : SimpleController
     {
         private Server Srv { get; }
+        private StudentService StudentSrv { get; }
+        private SubjectService SubjectSrv { get; }
 
         public SimpleValuesController(Server srv)
         {
             Srv = srv;
+            StudentSrv = Context.GetInstance().StudentService;
+            SubjectSrv = Context.GetInstance().SubjectService;
         }
 
         [SimpleHandler("1", "Registrar nuevo estudiante")]
@@ -44,8 +50,16 @@ namespace Gestion.Srv
                 LastName = lastName
             };
 
-            var studentService = Context.GetInstance().StudentService;
-            studentService.SignupStudent(student);
+            Console.WriteLine("");
+
+            try
+            {
+                StudentSrv.SignupStudent(student);
+            }
+            catch (DuplicateEntityException)
+            {
+                Console.WriteLine("Un estudiante con ese numero ya existe, cancelando la operacion...");
+            }
         }
 
         [SimpleHandler("2", "Registrar nueva materia")]
@@ -66,8 +80,8 @@ namespace Gestion.Srv
                 Name = name
             };
 
-            var subjectService = Context.GetInstance().SubjectService;
-            subjectService.RegisterSubject(subject);
+            SubjectSrv.RegisterSubject(subject);
+            Console.WriteLine("");
         }
 
         [SimpleHandler("3", "Borrar materia")]
@@ -78,8 +92,7 @@ namespace Gestion.Srv
             Console.WriteLine("--------------------");
             Console.WriteLine("");
 
-            var subjectService = Context.GetInstance().SubjectService;
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -96,7 +109,8 @@ namespace Gestion.Srv
                 max: subjects.Count());
 
             var subject = subjects.ElementAt(option - 1);
-            subjectService.RemoveSubject(subject.Id);
+            SubjectSrv.RemoveSubject(subject.Id);
+            Console.WriteLine("");
         }
 
         [SimpleHandler("4", "Ver cursos disponibles")]
@@ -107,8 +121,7 @@ namespace Gestion.Srv
             Console.WriteLine("---------------");
             Console.WriteLine("");
 
-            var subjectService = Context.GetInstance().SubjectService;
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -117,20 +130,18 @@ namespace Gestion.Srv
             }
 
             ConsolePrompts.PrintListWithIndices(subjects.Select(s => s.Name));
+            Console.WriteLine("");
         }
 
         [SimpleHandler("5", "Calificar alumno")]
         public void GradeStudent()
         {
-            var studentService = Context.GetInstance().StudentService;
-            var subjectService = Context.GetInstance().SubjectService;
-
             Console.Clear();
             Console.WriteLine("Asistente de calificaciones");
             Console.WriteLine("---------------------------");
             Console.WriteLine("");
 
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -149,7 +160,7 @@ namespace Gestion.Srv
                 max: subjects.Count());
 
             var subject = subjects.ElementAt(option - 1);
-            var students = studentService.GetStudentsEnrolledInSubject(subject.Id);
+            var students = StudentSrv.GetStudentsEnrolledInSubject(subject.Id);
 
             Console.WriteLine("");
 
@@ -177,8 +188,9 @@ namespace Gestion.Srv
                 min: 1,
                 max: 100);
 
-            studentService.GradeStudent(student.Id, subject.Id, grade);
+            StudentSrv.GradeStudent(student.Id, subject.Id, grade);
             Srv.SendNotification(student.Id, $"Has recibido una calificacion! Sacaste {grade} en {subject.Name}");
+            Console.WriteLine("");
             Console.WriteLine($"Se notifico a {student.LastName}, {student.FirstName} que su nota para {subject.Name} fue {grade}");
         }
     }

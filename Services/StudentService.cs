@@ -17,19 +17,6 @@ namespace Gestion.Services
             SubjectRepo = subRepo;
         }
 
-        public bool StudentDoesExist(string studentId)
-        {
-            try
-            {
-                StudentRepo.Get(studentId);
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
-
         public Student GetStudentById(string studentId)
         {
             return StudentRepo.Get(studentId);
@@ -84,6 +71,19 @@ namespace Gestion.Services
 
             student.AddSubject(subject);
             StudentRepo.Update(student);
+        }
+
+        public void LinkUploadedFileToSubjectForStudent(string studentId, string subjectId, FileRef file)
+        {
+            var student = StudentRepo.Get(studentId);
+            student.AddFileToSubject(subjectId, file);
+            StudentRepo.Update(student);
+        }
+
+        public IEnumerable<FileRef> GetFilesUploadedByStudent(string studentId, string subjectId)
+        {
+            var student = StudentRepo.Get(studentId);
+            return student.GetFilesForSubject(subjectId);
         }
 
         public void GradeStudent(string studentId, string subjectId, int grade)

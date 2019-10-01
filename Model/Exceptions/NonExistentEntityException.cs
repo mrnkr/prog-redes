@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Gestion.Repository.Exceptions
+namespace Gestion.Model.Exceptions
 {
     public class NonExistentEntityException : Exception
     {

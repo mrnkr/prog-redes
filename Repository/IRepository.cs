@@ -12,12 +12,9 @@ namespace Gestion.Repository
         IEnumerable<T> Find(Func<T, bool> predicate);
 
         void Add(T e);
-        void AddRange(IEnumerable<T> es);
 
         void Update(T e);
-        void UpdateRange(IEnumerable<T> es);
 
         void Remove(T e);
-        void RemoveRange(IEnumerable<T> es);
     }
 }

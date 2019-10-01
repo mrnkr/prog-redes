@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Subarashii.Core.Exceptions;
 using System;
 using System.Linq;
 using System.Text;
@@ -30,7 +31,14 @@ namespace Subarashii.Core
 
         public static string DecodePayload(byte[] payload)
         {
-            return Encoding.UTF8.GetString(payload, 0, payload.Length);
+            var ret = Encoding.UTF8.GetString(payload, 0, payload.Length);
+
+            if (ret == "ERROR")
+            {
+                throw new OperationFailedException();
+            }
+
+            return ret;
         }
 
         public static T DecodePayload<T>(byte[] payload) where T : class
