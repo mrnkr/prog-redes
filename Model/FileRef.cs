@@ -1,11 +1,25 @@
-﻿namespace Gestion.Model
+﻿using System;
+
+namespace Gestion.Model
 {
-    public class FileRef
+    public class FileRef : BaseEntity
     {
-        public string Path;
+        public string Name { get; set; }
+        public string Path { get; set; }
 
-        public string Id;
+        public FileRef()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
 
-        public string Name;
+        public override object Clone()
+        {
+            return new FileRef()
+            {
+                Id = Id,
+                Name = Name,
+                Path = Path
+            };
+        }
     }
 }

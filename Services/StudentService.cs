@@ -1,8 +1,8 @@
 ﻿using Gestion.Model;
-using Gestion.Model.Exceptions;
 using Gestion.Repository;
-using Gestion.Services.Exceptions;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Gestion.Services
 {
@@ -17,47 +17,80 @@ namespace Gestion.Services
             SubjectRepo = subRepo;
         }
 
+        public bool StudentDoesExist(string studentId)
+        {
+            try
+            {
+                StudentRepo.Get(studentId);
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        public Student GetStudentById(string studentId)
+        {
+            return StudentRepo.Get(studentId);
+        }
+
+        public IEnumerable<Student> GetStudentsEnrolledInSubject(string subjectId)
+        {
+            return StudentRepo.Find(student => student.GetSubjects().Any(s => s.Id == subjectId));
+        }
+
+        public void SignupStudent(Student s)
+        {
+            StudentRepo.Add(s);
+        }
+
+        public IEnumerable<Subject> GetSubjectsStudentIsEnrolledIn(string studentId)
+        {
+            return GetStudentById(studentId).GetSubjects();
+        }
+
+        public IDictionary<string, string> GetSubjectsAndStatusAccordingToStudent(string studentId)
+        {
+            IDictionary<string, string> ret = new Dictionary<string, string>();
+
+            var student = StudentRepo.Get(studentId);
+            var subjects = SubjectRepo.GetAll();
+            
+            foreach (var s in subjects)
+            {
+                if (student.GetGrades().ContainsKey(s.Id))
+                {
+                    ret.Add(s.Name, "Con nota");
+                    continue;
+                }
+
+                if (student.GetSubjects().Any(sub => sub.Id == s.Id))
+                {
+                    ret.Add(s.Name, "Inscripto");
+                    continue;
+                }
+
+                ret.Add(s.Name, "No inscripto");
+            }
+
+            return ret;
+        }
+
         public void EnrollInSubject(string studentId, string subjectId)
         {
-            if (!SubjectRepo.GetAll().Find(s => s.Id == subjectId).IsActive)
-                throw new InactiveSubjectException();
-            Student studentToModify = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            Subject subjectToAdd = SubjectRepo.GetAll().Find(s => s.Id == subjectId);
-            AddToSubjectList(studentToModify, subjectToAdd);
-            StudentRepo.Modify(studentToModify);
+            var student = StudentRepo.Get(studentId);
+            var subject = SubjectRepo.Get(subjectId);
+
+            student.AddSubject(subject);
+            StudentRepo.Update(student);
         }
 
-        public void AddFileToSubject(FileRef file, string subjectId, string studentId)
+        public void GradeStudent(string studentId, string subjectId, int grade)
         {
-            Student toMod = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            AddFileToDictionary(file, subjectId, toMod.Id);
-            StudentRepo.Modify(toMod);
+            var student = StudentRepo.Get(studentId);
+            student.AddGrade(subjectId, grade);
+            StudentRepo.Update(student);
         }
-
-        private void AddFileToDictionary(FileRef file, string subjectId, string studentId)
-        {
-            Student stud = StudentRepo.GetAll().Find(s => s.Id == studentId);
-            Dictionary<string, List<FileRef>> filesTemp = stud.Files;
-            if (!stud.Files.ContainsKey(subjectId))
-            {
-                throw new UndefinedSubjectException();
-            }
-            List<FileRef> fileRefs;
-            filesTemp.TryGetValue(subjectId, out fileRefs);
-            if (fileRefs == null)
-            {
-                fileRefs = new List<FileRef>();
-                fileRefs.Add(file);
-            }
-            stud.Files.Remove(subjectId);
-            stud.Files.Add(subjectId, fileRefs);
-        }
-
-        private void AddToSubjectList(Student student, Subject subject)
-        {
-            student.Grades.Add(subject.Id, null);
-            student.Files.Add(subject.Id, null);
-        }
-
     }
 }

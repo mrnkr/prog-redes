@@ -1,4 +1,5 @@
-﻿using SimpleRouter;
+﻿using Helpers;
+using SimpleRouter;
 using Subarashii.Core;
 using System;
 using System.Diagnostics;
@@ -28,9 +29,12 @@ namespace Gestion.Srv
                 while (true)
                 {
                     Console.Clear();
-                    // Print menu here
-                    Console.WriteLine("Ingrese codigo de operacion...");
-                    var option = Console.ReadLine();
+                    Router.ListPossibleOperations();
+
+                    var option = ConsolePrompts.ReadUntilValid(
+                        prompt: "Codigo de operacion",
+                        pattern: "^[0-9]+|(exit)$",
+                        errorMsg: "Favor de ingresar un numero o exit");
 
                     if (option == "exit")
                     {
