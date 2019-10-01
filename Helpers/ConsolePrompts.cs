@@ -73,8 +73,8 @@ namespace Helpers
 
             if (option == 0)
             {
-                var nextDirectory = currentDirectory.Substring(0, currentDirectory.LastIndexOf('\\') + 1);
-                return ChooseFile(nextDirectory);
+                var nextDirectory = currentDirectory.Substring(0, currentDirectory.LastIndexOf('\\'));
+                return ChooseFile(nextDirectory == @"C:" ? @"C:\" : nextDirectory);
             }
 
             var attr = File.GetAttributes(entries.ElementAt(option - 1));

@@ -135,11 +135,11 @@ namespace Gestion.Srv
                 IDictionary<string, int> ret = new Dictionary<string, int>();
 
                 var student = StudentSrv.GetStudentById(auth);
-                var subjects = student.GetGrades();
+                var grades = student.GetGrades();
 
-                foreach (var s in subjects)
+                foreach (var s in grades)
                 {
-                    var subject = SubjectSrv.GetSubjectById(s.Key);
+                    var subject = student.GetSubjects().Where(sub => sub.Id == s.Key).Single();
                     ret.Add(subject.Name, s.Value);
                 }
 
