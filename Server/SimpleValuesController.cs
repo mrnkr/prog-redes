@@ -1,5 +1,6 @@
 ﻿using Gestion.Model;
 using Gestion.Model.Exceptions;
+using Gestion.Services;
 using Helpers;
 using SimpleRouter;
 using Subarashii.Core;
@@ -11,17 +12,19 @@ namespace Gestion.Srv
     public class SimpleValuesController : SimpleController
     {
         private Server Srv { get; }
+        private StudentService StudentSrv { get; }
+        private SubjectService SubjectSrv { get; }
 
         public SimpleValuesController(Server srv)
         {
             Srv = srv;
+            StudentSrv = Context.GetInstance().StudentService;
+            SubjectSrv = Context.GetInstance().SubjectService;
         }
 
         [SimpleHandler("1", "Registrar nuevo estudiante")]
         public void SignupStudent()
         {
-            var studentService = Context.GetInstance().StudentService;
-
             Console.Clear();
             Console.WriteLine("Registro de estudiante");
             Console.WriteLine("----------------------");
@@ -51,7 +54,7 @@ namespace Gestion.Srv
 
             try
             {
-                studentService.SignupStudent(student);
+                StudentSrv.SignupStudent(student);
             }
             catch (DuplicateEntityException)
             {
@@ -77,8 +80,7 @@ namespace Gestion.Srv
                 Name = name
             };
 
-            var subjectService = Context.GetInstance().SubjectService;
-            subjectService.RegisterSubject(subject);
+            SubjectSrv.RegisterSubject(subject);
             Console.WriteLine("");
         }
 
@@ -90,8 +92,7 @@ namespace Gestion.Srv
             Console.WriteLine("--------------------");
             Console.WriteLine("");
 
-            var subjectService = Context.GetInstance().SubjectService;
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -108,7 +109,7 @@ namespace Gestion.Srv
                 max: subjects.Count());
 
             var subject = subjects.ElementAt(option - 1);
-            subjectService.RemoveSubject(subject.Id);
+            SubjectSrv.RemoveSubject(subject.Id);
             Console.WriteLine("");
         }
 
@@ -120,8 +121,7 @@ namespace Gestion.Srv
             Console.WriteLine("---------------");
             Console.WriteLine("");
 
-            var subjectService = Context.GetInstance().SubjectService;
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -136,15 +136,12 @@ namespace Gestion.Srv
         [SimpleHandler("5", "Calificar alumno")]
         public void GradeStudent()
         {
-            var studentService = Context.GetInstance().StudentService;
-            var subjectService = Context.GetInstance().SubjectService;
-
             Console.Clear();
             Console.WriteLine("Asistente de calificaciones");
             Console.WriteLine("---------------------------");
             Console.WriteLine("");
 
-            var subjects = subjectService.GetAllSubjects();
+            var subjects = SubjectSrv.GetAllSubjects();
 
             if (subjects.Count() == 0)
             {
@@ -163,7 +160,7 @@ namespace Gestion.Srv
                 max: subjects.Count());
 
             var subject = subjects.ElementAt(option - 1);
-            var students = studentService.GetStudentsEnrolledInSubject(subject.Id);
+            var students = StudentSrv.GetStudentsEnrolledInSubject(subject.Id);
 
             Console.WriteLine("");
 
@@ -191,7 +188,7 @@ namespace Gestion.Srv
                 min: 1,
                 max: 100);
 
-            studentService.GradeStudent(student.Id, subject.Id, grade);
+            StudentSrv.GradeStudent(student.Id, subject.Id, grade);
             Srv.SendNotification(student.Id, $"Has recibido una calificacion! Sacaste {grade} en {subject.Name}");
             Console.WriteLine("");
             Console.WriteLine($"Se notifico a {student.LastName}, {student.FirstName} que su nota para {subject.Name} fue {grade}");

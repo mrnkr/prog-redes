@@ -3,6 +3,7 @@ using SimpleRouter;
 using Subarashii.Core;
 using Subarashii.Core.Exceptions;
 using System;
+using System.Configuration;
 using System.Threading;
 
 namespace Gestion.Cli
@@ -15,7 +16,7 @@ namespace Gestion.Cli
             Console.WriteLine("Bienvenido a Gestion 3.0\nPresiona enter para conectarte...");
             Console.ReadKey();
 
-            var client = new Client("192.168.1.3", 8000);
+            var client = new Client(GetValueFromConfig<string>("ip"), GetValueFromConfig<int>("port"));
             client.Connect(() =>
             {
                 try
@@ -87,6 +88,12 @@ namespace Gestion.Cli
             {
                 throw new InvalidAuthException();
             }
+        }
+
+        private static T GetValueFromConfig<T>(string key)
+        {
+            var value = ConfigurationManager.AppSettings.Get(key);
+            return (T)Convert.ChangeType(value, typeof(T));
         }
     }
 }

@@ -73,6 +73,19 @@ namespace Gestion.Services
             StudentRepo.Update(student);
         }
 
+        public void LinkUploadedFileToSubjectForStudent(string studentId, string subjectId, FileRef file)
+        {
+            var student = StudentRepo.Get(studentId);
+            student.AddFileToSubject(subjectId, file);
+            StudentRepo.Update(student);
+        }
+
+        public IEnumerable<FileRef> GetFilesUploadedByStudent(string studentId, string subjectId)
+        {
+            var student = StudentRepo.Get(studentId);
+            return student.GetFilesForSubject(subjectId);
+        }
+
         public void GradeStudent(string studentId, string subjectId, int grade)
         {
             var student = StudentRepo.Get(studentId);

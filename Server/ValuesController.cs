@@ -1,4 +1,5 @@
 ﻿using Gestion.Model;
+using Gestion.Services;
 using Subarashii.Core;
 using System;
 using System.Collections.Generic;
@@ -9,13 +10,21 @@ namespace Gestion.Srv
 {
     public class ValuesController : Controller
     {
+        private StudentService StudentSrv { get; }
+        private SubjectService SubjectSrv { get; }
+
+        public ValuesController()
+        {
+            StudentSrv = Context.GetInstance().StudentService;
+            SubjectSrv = Context.GetInstance().SubjectService;
+        }
+
         [Handler("01")]
         public void VerifyStudent(string studentId, string auth)
         {
             try
             {
-                var studentService = Context.GetInstance().StudentService;
-                var student = studentService.GetStudentById(studentId);
+                var student = StudentSrv.GetStudentById(studentId);
                 Text(student.FirstName);
             }
             catch
@@ -29,23 +38,20 @@ namespace Gestion.Srv
         {
             try
             {
-                var subjectService = Context.GetInstance().SubjectService;
-                var studentService = Context.GetInstance().StudentService;
-
                 switch (scope)
                 {
                     case "ALL":
-                        Object(subjectService.GetAllSubjects());
+                        Object(SubjectSrv.GetAllSubjects());
                         break;
                     case "MINE":
-                        Object(studentService.GetSubjectsStudentIsEnrolledIn(auth));
+                        Object(StudentSrv.GetSubjectsStudentIsEnrolledIn(auth));
                         break;
                     case "ALL_WITH_STATUS":
-                        Object(studentService.GetSubjectsAndStatusAccordingToStudent(auth));
+                        Object(StudentSrv.GetSubjectsAndStatusAccordingToStudent(auth));
                         break;
                     case "NOT_MINE":
-                        var subjectsUserIsEnrolledIn = studentService.GetSubjectsStudentIsEnrolledIn(auth).Select(s => s.Id);
-                        Object(subjectService.GetAllSubjects().Where(s => !subjectsUserIsEnrolledIn.Contains(s.Id)));
+                        var subjectsUserIsEnrolledIn = StudentSrv.GetSubjectsStudentIsEnrolledIn(auth).Select(s => s.Id);
+                        Object(SubjectSrv.GetAllSubjects().Where(s => !subjectsUserIsEnrolledIn.Contains(s.Id)));
                         break;
                     default:
                         throw new Exception();
@@ -62,8 +68,7 @@ namespace Gestion.Srv
         {
             try
             {
-                var studentService = Context.GetInstance().StudentService;
-                studentService.EnrollInSubject(auth, subjectId);
+                StudentSrv.EnrollInSubject(auth, subjectId);
                 Text("OK");
             }
             catch
@@ -75,14 +80,13 @@ namespace Gestion.Srv
         [Handler("05")]
         public void UploadFile(string fileName, string auth)
         {
+            string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var src = Path.Combine(userFolder, "Downloads", fileName);
+
             try
             {
-                string userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-                var src = Path.Combine(userFolder, "Downloads", fileName);
-
                 if (auth == "------")
                 {
-                    System.IO.File.Delete(src);
                     throw new Exception();
                 }
 
@@ -103,6 +107,7 @@ namespace Gestion.Srv
             }
             catch
             {
+                System.IO.File.Delete(src);
                 Error();
             }
         }
@@ -112,9 +117,7 @@ namespace Gestion.Srv
         {
             try
             {
-                var studentService = Context.GetInstance().StudentService;
-                var student = studentService.GetStudentById(auth);
-                student.AddFileToSubject(data.Item1, data.Item2);
+                StudentSrv.LinkUploadedFileToSubjectForStudent(auth, data.Item1, data.Item2);
                 Text("OK");
             }
             catch
@@ -130,19 +133,44 @@ namespace Gestion.Srv
             try
             {
                 IDictionary<string, int> ret = new Dictionary<string, int>();
-                var studentService = Context.GetInstance().StudentService;
-                var subjectService = Context.GetInstance().SubjectService;
 
-                var student = studentService.GetStudentById(auth);
+                var student = StudentSrv.GetStudentById(auth);
                 var subjects = student.GetGrades();
 
                 foreach (var s in subjects)
                 {
-                    var subject = subjectService.GetSubjectById(s.Key);
+                    var subject = SubjectSrv.GetSubjectById(s.Key);
                     ret.Add(subject.Name, s.Value);
                 }
 
                 Object(ret);
+            }
+            catch
+            {
+                Error();
+            }
+        }
+
+        [Handler("08")]
+        public void GetFilesForStudent(string subjectId, string auth)
+        {
+            try
+            {
+                var files = StudentSrv.GetFilesUploadedByStudent(auth, subjectId);
+                Object(files);
+            }
+            catch
+            {
+                Error();
+            }
+        }
+
+        [Handler("09")]
+        public void DownloadFile(string path, string auth)
+        {
+            try
+            {
+                File(path);
             }
             catch
             {
