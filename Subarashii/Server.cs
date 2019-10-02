@@ -12,11 +12,25 @@ namespace Subarashii.Core
 {
     public class Server
     {
-        private int Port { get; set; }
+        private string IpAddr { get; }
+        private int Port { get; }
         private IDictionary<string, Socket> Notifiers { get; set; }
 
         public Server(int port)
         {
+            IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
+            IPAddress ipAddress = ipHostInfo.AddressList
+                .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
+                .Single();
+
+            IpAddr = ipAddress.ToString();
+            Port = port;
+            Notifiers = new Dictionary<string, Socket>();
+        }
+
+        public Server(string ipAddr, int port)
+        {
+            IpAddr = ipAddr;
             Port = port;
             Notifiers = new Dictionary<string, Socket>();
         }
@@ -25,10 +39,7 @@ namespace Subarashii.Core
         {
             try
             {
-                IPHostEntry ipHostInfo = Dns.GetHostEntry(Dns.GetHostName());
-                IPAddress ipAddress = ipHostInfo.AddressList
-                    .Where(ip => ip.AddressFamily == AddressFamily.InterNetwork)
-                    .Single();
+                IPAddress ipAddress = IPAddress.Parse(IpAddr);
                 IPEndPoint remoteEP = new IPEndPoint(ipAddress, Port);
 
                 Socket listener = new Socket(ipAddress.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
