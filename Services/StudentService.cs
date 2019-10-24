@@ -4,9 +4,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Gestion.Services
+namespace Gestion.Services.Impl
 {
-    public class StudentService
+    public class StudentService : MarshalByRefObject, IStudentService
     {
         private IRepository<Student> StudentRepo { get; set; }
         private IRepository<Subject> SubjectRepo { get; set; }

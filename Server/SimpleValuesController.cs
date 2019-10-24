@@ -12,8 +12,8 @@ namespace Gestion.Srv
     public class SimpleValuesController : SimpleController
     {
         private Server Srv { get; }
-        private StudentService StudentSrv { get; }
-        private SubjectService SubjectSrv { get; }
+        private IStudentService StudentSrv { get; }
+        private ISubjectService SubjectSrv { get; }
 
         public SimpleValuesController(Server srv)
         {

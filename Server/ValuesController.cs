@@ -10,8 +10,8 @@ namespace Gestion.Srv
 {
     public class ValuesController : Controller
     {
-        private StudentService StudentSrv { get; }
-        private SubjectService SubjectSrv { get; }
+        private IStudentService StudentSrv { get; }
+        private ISubjectService SubjectSrv { get; }
 
         public ValuesController()
         {

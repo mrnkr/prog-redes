@@ -21,7 +21,8 @@ namespace Gestion.Srv
 
             var ipAddr = PromptUserForIpAddress();
             var server = new Server(ipAddr, GetValueFromConfig<int>("port"));
-            BeginInteractive(server);
+            RemotingServer.ExposeContextThroughRemoting();
+            CommandLineInterface.BeginInteractive(server);
             server.Run();
         }
 
@@ -54,33 +55,6 @@ namespace Gestion.Srv
                 max: ipAddresses.Count());
 
             return ipAddresses.ElementAt(option - 1);
-        }
-
-        private static void BeginInteractive(Server server)
-        {
-            new Thread(() =>
-            {
-                Thread.Sleep(300);
-                while (true)
-                {
-                    Console.Clear();
-                    Router.ListPossibleOperations();
-
-                    var option = ConsolePrompts.ReadUntilValid(
-                        prompt: "Codigo de operacion",
-                        pattern: "^[0-9]+|(exit)$",
-                        errorMsg: "Favor de ingresar un numero o exit");
-
-                    if (option == "exit")
-                    {
-                        Process.GetCurrentProcess().Kill();
-                    }
-
-                    Router.RouteOperation(option, new object[] { server });
-                    Console.WriteLine("Presiona enter para continuar");
-                    Console.ReadKey();
-                }
-            }).Start();
         }
 
         private static T GetValueFromConfig<T>(string key)

@@ -42,6 +42,7 @@
     <Reference Include="System.Data.OracleClient" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Net" />
+    <Reference Include="System.Runtime.Remoting" />
     <Reference Include="System.Security" />
     <Reference Include="System.Security.AccessControl, Version=4.1.2.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Security.AccessControl.4.6.0\lib\net461\System.Security.AccessControl.dll</HintPath>
@@ -63,9 +64,11 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLineInterface.cs" />
     <Compile Include="Context.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RemotingServer.cs" />
     <Compile Include="SimpleValuesController.cs" />
     <Compile Include="ValuesController.cs" />
   </ItemGroup>
@@ -85,6 +88,10 @@
     <ProjectReference Include="..\Repository\Repository.csproj">
       <Project>{0d8c937d-1a94-431d-881d-27b0d3d65045}</Project>
       <Name>Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ServiceDefinitions\ServiceDefinitions.csproj">
+      <Project>{60107333-02da-46b7-a911-cf8224c2f55c}</Project>
+      <Name>ServiceDefinitions</Name>
     </ProjectReference>
     <ProjectReference Include="..\Services\Services.csproj">
       <Project>{8b5ffe69-883d-4cf9-9be6-83f945c2a06c}</Project>

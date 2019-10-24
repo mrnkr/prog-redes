@@ -1,10 +1,12 @@
 ﻿using Gestion.Model;
 using Gestion.Repository;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 
-namespace Gestion.Services
+namespace Gestion.Services.Impl
 {
-    public class SubjectService
+    public class SubjectService : MarshalByRefObject, ISubjectService
     {
         private IRepository<Subject> SubjectRepo { get; set; }
         
