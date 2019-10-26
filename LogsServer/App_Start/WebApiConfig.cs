@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using LogsServer.App_Start;
+using System.Web.Http;
 
 namespace LogsServer
 {
@@ -7,6 +8,7 @@ namespace LogsServer
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
+            config.Filters.Add(new CustomExceptionFilterAttribute());
 
             // Web API routes
             config.MapHttpAttributeRoutes();

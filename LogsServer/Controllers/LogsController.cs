@@ -6,13 +6,17 @@ using System.Web.Http;
 
 namespace LogsServer.Controllers
 {
-    public class ValuesController : ApiController
+    public class LogsController : ApiController
     {
-        public IEnumerable<LogEntryViewModel> Get()
+        public IEnumerable<LogEntryViewModel> Get([FromUri] LogQueryViewModel logQuery)
         {
-            return LogsService
+            var query = LogsService
                 .GetInstance()
-                .GetAll()
+                .QueryLogs();
+            logQuery.PrepareQuery(query);
+
+            return query
+                .RunQuery()
                 .Select(l => LogEntryViewModel.FromEntity(l));
         }
     }
