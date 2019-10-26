@@ -2,7 +2,7 @@
 
 namespace Gestion.Model
 {
-    public abstract class BaseEntity : ICloneable
+    public abstract class BaseEntity : MarshalByRefObject, ICloneable
     {
         public string Id { get; set; }
 

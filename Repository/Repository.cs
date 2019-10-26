@@ -32,7 +32,7 @@ namespace Gestion.Repository
         {
             lock (Data)
             {
-                return Data.Values.Select(e => (T)e.Clone());
+                return Data.Values.Select(e => (T)e.Clone()).ToArray();
             }
         }
 
@@ -40,7 +40,7 @@ namespace Gestion.Repository
         {
             lock (Data)
             {
-                return Data.Values.Where(predicate).Select(e => (T)e.Clone());
+                return Data.Values.Where(predicate).Select(e => (T)e.Clone()).ToArray();
             }
         }
 

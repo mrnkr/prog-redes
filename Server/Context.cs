@@ -1,15 +1,17 @@
 ﻿using Gestion.Model;
 using Gestion.Repository;
 using Gestion.Services;
+using Gestion.Services.Impl;
+using System;
 
 namespace Gestion.Srv
 {
-    public class Context
+    public class Context : MarshalByRefObject, IContext
     {
         private static Context Instance { get; set; }
 
-        public StudentService StudentService { get; }
-        public SubjectService SubjectService { get; }
+        public IStudentService StudentService { get; }
+        public ISubjectService SubjectService { get; }
 
         public static Context GetInstance()
         {
@@ -29,5 +31,7 @@ namespace Gestion.Srv
             StudentService = new StudentService(subjectRepo, studentRepo);
             SubjectService = new SubjectService(subjectRepo);
         }
+
+        public override object InitializeLifetimeService() { return null; }
     }
 }
