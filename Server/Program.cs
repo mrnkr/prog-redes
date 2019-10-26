@@ -1,13 +1,9 @@
-﻿using Helpers;
-using SimpleRouter;
+﻿using Gestion.Common;
 using Subarashii.Core;
 using System;
-using System.Configuration;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading;
 
 namespace Gestion.Srv
 {
@@ -20,7 +16,7 @@ namespace Gestion.Srv
             Console.ReadLine();
 
             var ipAddr = PromptUserForIpAddress();
-            var server = new Server(ipAddr, GetValueFromConfig<int>("port"));
+            var server = new Server(ipAddr, Config.GetValue<int>("port"));
             RemotingServer.ExposeContextThroughRemoting();
             CommandLineInterface.BeginInteractive(server);
             server.Run();
@@ -55,12 +51,6 @@ namespace Gestion.Srv
                 max: ipAddresses.Count());
 
             return ipAddresses.ElementAt(option - 1);
-        }
-
-        private static T GetValueFromConfig<T>(string key)
-        {
-            var value = ConfigurationManager.AppSettings.Get(key);
-            return (T)Convert.ChangeType(value, typeof(T));
         }
     }
 }

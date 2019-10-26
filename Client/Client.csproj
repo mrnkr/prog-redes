@@ -72,9 +72,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Helpers\Helpers.csproj">
+    <ProjectReference Include="..\Helpers\Common.csproj">
       <Project>{0bb3ded4-d5e5-48e9-8e55-62da5524a283}</Project>
-      <Name>Helpers</Name>
+      <Name>Common</Name>
     </ProjectReference>
     <ProjectReference Include="..\Model\Model.csproj">
       <Project>{b3091d15-e5db-4916-8818-4c11a0abe376}</Project>

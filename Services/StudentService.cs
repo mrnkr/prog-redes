@@ -8,13 +8,15 @@ namespace Gestion.Services.Impl
 {
     public class StudentService : MarshalByRefObject, IStudentService
     {
-        private IRepository<Student> StudentRepo { get; set; }
-        private IRepository<Subject> SubjectRepo { get; set; }
+        private IRepository<Student> StudentRepo { get; }
+        private IRepository<Subject> SubjectRepo { get; }
+        private ILogger Logger { get; }
 
-        public StudentService(IRepository<Subject> subRepo, IRepository<Student> studRepo)
+        public StudentService(IRepository<Subject> subRepo, IRepository<Student> studRepo, ILogger logger)
         {
             StudentRepo = studRepo;
             SubjectRepo = subRepo;
+            Logger = logger;
         }
 
         public Student GetStudentById(string studentId)
@@ -30,6 +32,7 @@ namespace Gestion.Services.Impl
         public void SignupStudent(Student s)
         {
             StudentRepo.Add(s);
+            Logger.Log(EventType.StudentSignup, $"Registered {s.Id} - {s.LastName}, {s.FirstName}");
         }
 
         public IEnumerable<Subject> GetSubjectsStudentIsEnrolledIn(string studentId)
@@ -71,6 +74,8 @@ namespace Gestion.Services.Impl
 
             student.AddSubject(subject);
             StudentRepo.Update(student);
+
+            Logger.Log(EventType.SubjectEnrollment, $"{student.LastName}, {student.FirstName} enrolled in {subject.Name}");
         }
 
         public void LinkUploadedFileToSubjectForStudent(string studentId, string subjectId, FileRef file)
@@ -78,6 +83,7 @@ namespace Gestion.Services.Impl
             var student = StudentRepo.Get(studentId);
             student.AddFileToSubject(subjectId, file);
             StudentRepo.Update(student);
+            Logger.Log(EventType.FileUpload, $"{student.LastName}, {student.FirstName} has uploaded {file.Name}");
         }
 
         public IEnumerable<FileRef> GetFilesUploadedByStudent(string studentId, string subjectId)
@@ -91,6 +97,7 @@ namespace Gestion.Services.Impl
             var student = StudentRepo.Get(studentId);
             student.AddGrade(subjectId, grade);
             StudentRepo.Update(student);
+            Logger.Log(EventType.Grading, $"{student.LastName}, {student.FirstName} has been given a {grade}");
         }
     }
 }
