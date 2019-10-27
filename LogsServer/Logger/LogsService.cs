@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Messaging;
-using System.Web;
 
 namespace LogsServer.Logger
 {
@@ -24,6 +23,11 @@ namespace LogsServer.Logger
 
         private LogsService() {
             QueuePath = Config.GetValue<string>("msmq");
+        }
+
+        public LogQuery QueryLogs()
+        {
+            return new LogQuery(GetAll());
         }
 
         public IEnumerable<LogEntry> GetAll()
