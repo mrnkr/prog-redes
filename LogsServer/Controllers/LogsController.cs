@@ -8,6 +8,7 @@ namespace LogsServer.Controllers
 {
     public class LogsController : ApiController
     {
+        [Authorize]
         public IEnumerable<LogEntryViewModel> Get([FromUri] LogQueryViewModel logQuery)
         {
             var query = LogsService
