@@ -1,5 +1,6 @@
 ﻿using Gestion.Common;
 using LogsServer.App_Start;
+using LogsServer.Logger;
 using System.Web.Http;
 
 namespace LogsServer
@@ -10,6 +11,8 @@ namespace LogsServer
         {
             // Web API configuration and services
             config.Filters.Add(new CustomExceptionFilterAttribute());
+            var logsService = LogsService.GetInstance();
+            logsService.ReceiveMessages();
 
             // Web API routes
             config.MapHttpAttributeRoutes();
