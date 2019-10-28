@@ -16,8 +16,13 @@ namespace AdminServer.Controllers
         }
 
         // GET api/values
+        [Authorize]
         public IEnumerable<SubjectViewModel> Get()
         {
+            // To know the id of the user that's logged in
+            // import Gestion.Common and use the extension method
+            //var uid = this.GetLoggedUserId();
+
             return Ctx.SubjectService
                 .GetAllSubjects()
                 .Select(s => SubjectViewModel.FromEntity(s));
