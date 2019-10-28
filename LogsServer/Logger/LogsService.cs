@@ -1,8 +1,8 @@
 ﻿using Gestion.Common;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Messaging;
+using System.Threading;
 
 namespace LogsServer.Logger
 {
@@ -10,6 +10,7 @@ namespace LogsServer.Logger
     {
         private static LogsService Instance { get; set; }
         private string QueuePath { get; }
+        private ICollection<LogEntry> Logs { get; }
 
         public static LogsService GetInstance()
         {
@@ -23,20 +24,27 @@ namespace LogsServer.Logger
 
         private LogsService() {
             QueuePath = Config.GetValue<string>("msmq");
+            Logs = new List<LogEntry>();
         }
 
         public LogQuery QueryLogs()
         {
-            return new LogQuery(GetAll());
+            return new LogQuery(Logs);
         }
 
-        public IEnumerable<LogEntry> GetAll()
+        public void ReceiveMessages()
         {
-            MessageQueue queue = new MessageQueue(QueuePath);
-            queue.Formatter = new XmlMessageFormatter(new Type[] { typeof(LogEntry) });
+            new Thread(() =>
+            {
+                MessageQueue queue = new MessageQueue(QueuePath);
+                queue.Formatter = new XmlMessageFormatter(new Type[] { typeof(LogEntry) });
 
-            var msgs = queue.GetAllMessages();
-            return msgs.Select(msg => (LogEntry)msg.Body);
+                while (true)
+                {
+                    var log = queue.Receive();
+                    Logs.Add((LogEntry)log.Body);
+                }
+            }).Start();
         }
     }
 }
