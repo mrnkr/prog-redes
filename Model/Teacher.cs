@@ -1,8 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Gestion.Model
 {
@@ -11,7 +7,22 @@ namespace Gestion.Model
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string Email { get; set; }
-        public string Password { get; set;  }
+        public string Password { get; set; }
+
+        public Teacher()
+        {
+            Id = Guid.NewGuid().ToString();
+        }
+
+        public void EncryptPassword()
+        {
+            Password = BCrypt.Net.BCrypt.HashPassword(Password);
+        }
+
+        public bool VerifyPassword(string password)
+        {
+            return BCrypt.Net.BCrypt.Verify(password, Password);
+        }
 
         public override object Clone()
         {
