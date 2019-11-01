@@ -46,6 +46,7 @@
     <Compile Include="ILogger.cs" />
     <Compile Include="IStudentService.cs" />
     <Compile Include="ISubjectService.cs" />
+    <Compile Include="ITeacherService.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
