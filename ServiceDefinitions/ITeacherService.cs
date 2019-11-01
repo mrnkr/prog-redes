@@ -11,7 +11,6 @@ namespace Gestion.Services
     {
         void SignupTeacher(Teacher t);
 
-        void MarkUnmarkedMaterial(string teachedId, string studentId, string subjectId,
-             int grade);
+        Teacher Login(string email, string password);
     }
 }

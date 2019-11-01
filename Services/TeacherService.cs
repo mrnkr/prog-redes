@@ -1,4 +1,5 @@
 ﻿using Gestion.Model;
+using Gestion.Model.Exceptions;
 using Gestion.Repository;
 using Gestion.Services;
 using System;
@@ -30,18 +31,24 @@ namespace Gestion.Services
             Logger.Log(EventType.TeacherSignup, $"Registered {t.Id} - {t.LastName}, {t.FirstName}");
         }
 
-        public void MarkUnmarkedMaterial(string teachedId, string studentId, 
-            string subjectId, int grade)
+        public Teacher Login(string email, string password)
         {
-            Student student = StudentRepo.Get(studentId);
-            student.AddGrade(subjectId, grade);
-            StudentRepo.Update(student);
-            Subject subject = SubjectRepo.Get(subjectId);
-
-            Logger.Log(EventType.Grading, $"Graded {student.FirstName} , {student.LastName}," +
-                $" in Subject {subject.Name} with grade {grade}");
+            IEnumerable<Teacher> teachers = TeacherRepo.Find(s => s.Email == email);
+            Teacher ret = null;
+            foreach (var v in teachers)
+            {
+                bool passes = v.VerifyPassword(password);
+                if (passes)
+                {
+                    ret = v;
+                }
+            }
+            if (ret == null)
+            {
+                throw new NonExistentEntityException();
+            }
+            return ret;
         }
 
-       
     }
 }
