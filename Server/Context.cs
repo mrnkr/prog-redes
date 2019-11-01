@@ -13,6 +13,8 @@ namespace Gestion.Srv
 
         public IStudentService StudentService { get; }
         public ISubjectService SubjectService { get; }
+        
+        public ITeacherService TeacherService { get; }
 
         public static Context GetInstance()
         {
@@ -28,10 +30,12 @@ namespace Gestion.Srv
         {
             IRepository<Student> studentRepo = new Repository<Student>();
             IRepository<Subject> subjectRepo = new Repository<Subject>();
+            IRepository<Teacher> teacherRepo = new Repository<Teacher>();
             ILogger logger = new MessageQueueLogger();
 
             StudentService = new StudentService(subjectRepo, studentRepo, logger);
             SubjectService = new SubjectService(subjectRepo, logger);
+            TeacherService = new TeacherService(teacherRepo, logger);
         }
 
         public override object InitializeLifetimeService() { return null; }
