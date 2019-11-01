@@ -4,5 +4,6 @@
     {
         IStudentService StudentService { get; }
         ISubjectService SubjectService { get; }
+        ITeacherService TeacherService { get; }
     }
 }
