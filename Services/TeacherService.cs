@@ -9,7 +9,7 @@ using System.Text;
 
 namespace Gestion.Services
 {
-    public class TeacherService : ITeacherService
+    public class TeacherService : MarshalByRefObject, ITeacherService
     {
         private IRepository<Teacher> TeacherRepo { get; }
         private ILogger Logger { get; }
@@ -18,10 +18,21 @@ namespace Gestion.Services
         {
             TeacherRepo = teacherRepo;
             Logger = logger;
+
+            var teacher = new Teacher
+            {
+                FirstName = "Eduardo",
+                LastName = "Cuitinio",
+                Email = "elcuiti@gmail.com",
+                Password = "patata2",
+            };
+
+            SignupTeacher(teacher);
         }
 
         public void SignupTeacher(Teacher t)
         {
+            t.EncryptPassword();
             TeacherRepo.Add(t);
             Logger.Log(EventType.TeacherSignup, $"Registered {t.Id} - {t.LastName}, {t.FirstName}");
         }

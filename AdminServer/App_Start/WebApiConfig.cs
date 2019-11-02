@@ -1,4 +1,5 @@
-﻿using Gestion.Common;
+﻿using AdminServer.App_Start;
+using Gestion.Common;
 using System.Web.Http;
 
 namespace AdminServer
@@ -8,6 +9,8 @@ namespace AdminServer
         public static void Register(HttpConfiguration config)
         {
             // Web API configuration and services
+
+            config.Filters.Add(new CustomExceptionFilterAttribute());
 
             // Web API routes
             config.MapHttpAttributeRoutes();

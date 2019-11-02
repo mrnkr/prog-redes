@@ -13,7 +13,6 @@ namespace Gestion.Srv
 
         public IStudentService StudentService { get; }
         public ISubjectService SubjectService { get; }
-        
         public ITeacherService TeacherService { get; }
 
         public static Context GetInstance()
