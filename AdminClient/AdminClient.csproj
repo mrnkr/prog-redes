@@ -4,16 +4,17 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B2189EEB-4CFE-4F7C-8C7F-93C52F67C4CE}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Subarashii</RootNamespace>
-    <AssemblyName>Subarashii</AssemblyName>
+    <ProjectGuid>{E032BF4F-9262-43DB-8EB2-96DEB955DE3A}</ProjectGuid>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>AdminClient</RootNamespace>
+    <AssemblyName>AdminClient</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -23,6 +24,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -44,30 +46,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\Handler.cs" />
-    <Compile Include="Client.cs" />
-    <Compile Include="Constants.cs" />
-    <Compile Include="Encoding\DecodedMessage.cs" />
-    <Compile Include="Exceptions\DeadConnectionException.cs" />
-    <Compile Include="Exceptions\InvalidAuthException.cs" />
-    <Compile Include="Exceptions\InvalidCodeException.cs" />
-    <Compile Include="Exceptions\PayloadTooLargeException.cs" />
-    <Compile Include="Exchangers\Sender.cs" />
-    <Compile Include="Encoding\MessageBuilder.cs" />
-    <Compile Include="Encoding\MessageDecoder.cs" />
-    <Compile Include="Exchangers\Receiver.cs" />
-    <Compile Include="PseudoRx\Subscription.cs" />
-    <Compile Include="Server.cs" />
-    <Compile Include="Controller.cs" />
+    <Compile Include="HttpClientExtensions.cs" />
+    <Compile Include="Json\JsonContent.cs" />
+    <Compile Include="Json\StringContentExtensions.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ValuesController.cs" />
+    <Compile Include="ViewModels\StudentViewModel.cs" />
+    <Compile Include="ViewModels\SubjectViewModel.cs" />
+    <Compile Include="ViewModels\TokenResponseViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="App.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Helpers\Common.csproj">
       <Project>{0bb3ded4-d5e5-48e9-8e55-62da5524a283}</Project>
       <Name>Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SimpleRouter\SimpleRouter.csproj">
+      <Project>{98936786-a2f9-4114-b1ea-cdeb48bba42e}</Project>
+      <Name>SimpleRouter</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -26,9 +26,8 @@ namespace Gestion.Srv
         public void SignupStudent()
         {
             Console.Clear();
-            Console.WriteLine("Registro de estudiante");
-            Console.WriteLine("----------------------");
-            Console.WriteLine("");
+            ConsolePrompts.PrintHeader("Registro de estudiante");
+            ConsolePrompts.PrintEmptyLine();
 
             var id = ConsolePrompts.ReadUntilValid(
                 prompt: "Numero de estudiante",
@@ -50,7 +49,7 @@ namespace Gestion.Srv
                 LastName = lastName
             };
 
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
 
             try
             {
@@ -66,9 +65,8 @@ namespace Gestion.Srv
         public void RegisterSubject()
         {
             Console.Clear();
-            Console.WriteLine("Registro de curso");
-            Console.WriteLine("-----------------");
-            Console.WriteLine("");
+            ConsolePrompts.PrintHeader("Registro de curso");
+            ConsolePrompts.PrintEmptyLine();
 
             var name = ConsolePrompts.ReadUntilValid(
                 prompt: "Nombre",
@@ -81,16 +79,15 @@ namespace Gestion.Srv
             };
 
             SubjectSrv.RegisterSubject(subject);
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
         }
 
         [SimpleHandler("3", "Borrar materia")]
         public void RemoveSubject()
         {
             Console.Clear();
-            Console.WriteLine("Eliminacion de curso");
-            Console.WriteLine("--------------------");
-            Console.WriteLine("");
+            ConsolePrompts.PrintHeader("Eliminacion de curso");
+            ConsolePrompts.PrintEmptyLine();
 
             var subjects = SubjectSrv.GetAllSubjects();
 
@@ -102,7 +99,7 @@ namespace Gestion.Srv
 
             ConsolePrompts.PrintListWithIndices(subjects.Select(s => s.Name));
 
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
             var option = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Numero de la materia a borrar",
                 min: 1,
@@ -110,16 +107,15 @@ namespace Gestion.Srv
 
             var subject = subjects.ElementAt(option - 1);
             SubjectSrv.RemoveSubject(subject.Id);
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
         }
 
         [SimpleHandler("4", "Ver cursos disponibles")]
         public void ViewAvailableCourses()
         {
             Console.Clear();
-            Console.WriteLine("Lista de cursos");
-            Console.WriteLine("---------------");
-            Console.WriteLine("");
+            ConsolePrompts.PrintHeader("Lista de cursos");
+            ConsolePrompts.PrintEmptyLine();
 
             var subjects = SubjectSrv.GetAllSubjects();
 
@@ -130,16 +126,15 @@ namespace Gestion.Srv
             }
 
             ConsolePrompts.PrintListWithIndices(subjects.Select(s => s.Name));
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
         }
 
         [SimpleHandler("5", "Calificar alumno")]
         public void GradeStudent()
         {
             Console.Clear();
-            Console.WriteLine("Asistente de calificaciones");
-            Console.WriteLine("---------------------------");
-            Console.WriteLine("");
+            ConsolePrompts.PrintHeader("Asistente de calificaciones");
+            ConsolePrompts.PrintEmptyLine();
 
             var subjects = SubjectSrv.GetAllSubjects();
 
@@ -150,10 +145,10 @@ namespace Gestion.Srv
             }
 
             Console.WriteLine("Materias disponibles");
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
             ConsolePrompts.PrintListWithIndices(subjects.Select(s => s.Name));
+            ConsolePrompts.PrintEmptyLine();
 
-            Console.WriteLine("");
             var option = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Numero de la materia deseada",
                 min: 1,
@@ -162,7 +157,7 @@ namespace Gestion.Srv
             var subject = subjects.ElementAt(option - 1);
             var students = StudentSrv.GetStudentsEnrolledInSubject(subject.Id);
 
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
 
             if (students.Count() == 0)
             {
@@ -171,10 +166,10 @@ namespace Gestion.Srv
             }
 
             Console.WriteLine("Estudiantes inscriptos");
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
             ConsolePrompts.PrintListWithIndices(students.Select(s => $"{s.LastName}, {s.FirstName} [{s.Id}]"));
+            ConsolePrompts.PrintEmptyLine();
 
-            Console.WriteLine("");
             option = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Numero del estudiante",
                 min: 1,
@@ -182,7 +177,7 @@ namespace Gestion.Srv
 
             var student = students.ElementAt(option - 1);
 
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
             var grade = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Nota",
                 min: 1,
@@ -190,8 +185,9 @@ namespace Gestion.Srv
 
             StudentSrv.GradeStudent(student.Id, subject.Id, grade);
             Srv.SendNotification(student.Id, $"Has recibido una calificacion! Sacaste {grade} en {subject.Name}");
-            Console.WriteLine("");
+            ConsolePrompts.PrintEmptyLine();
             Console.WriteLine($"Se notifico a {student.LastName}, {student.FirstName} que su nota para {subject.Name} fue {grade}");
+            ConsolePrompts.PrintEmptyLine();
         }
     }
 }

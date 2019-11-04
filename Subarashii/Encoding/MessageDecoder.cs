@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json;
-using Subarashii.Core.Exceptions;
+﻿using Gestion.Common.Exceptions;
+using Newtonsoft.Json;
 using System;
 using System.Linq;
 using System.Text;

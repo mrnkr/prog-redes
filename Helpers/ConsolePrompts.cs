@@ -6,8 +6,20 @@ using System.Text.RegularExpressions;
 
 namespace Gestion.Common
 {
-    public class ConsolePrompts
+    public static class ConsolePrompts
     {
+        public static void PrintHeader(string title)
+        {
+            var pattern = new Regex(@".");
+            Console.WriteLine(title);
+            Console.WriteLine(pattern.Replace(title, "-"));
+        }
+
+        public static void PrintEmptyLine()
+        {
+            Console.WriteLine("");
+        }
+
         public static string ReadUntilValid(string prompt, string pattern, string errorMsg)
         {
             var regex = new Regex(pattern);
@@ -56,7 +68,7 @@ namespace Gestion.Common
 
             Console.Clear();
             Console.WriteLine($"Directorio activo: {currentDirectory}");
-            Console.WriteLine("");
+            PrintEmptyLine();
 
             if (currentDirectory != @"C:\")
             {
@@ -64,7 +76,7 @@ namespace Gestion.Common
             }
 
             PrintListWithIndices(entries);
-            Console.WriteLine("");
+            PrintEmptyLine();
 
             var option = ReadNumberUntilValid(
                 prompt: "Numero de opcion deseada",

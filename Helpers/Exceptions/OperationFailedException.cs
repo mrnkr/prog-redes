@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Subarashii.Core.Exceptions
+namespace Gestion.Common.Exceptions
 {
     public class OperationFailedException : Exception
     {

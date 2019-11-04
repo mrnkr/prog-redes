@@ -1,4 +1,5 @@
 ﻿using Gestion.Common;
+using Gestion.Common.Exceptions;
 using SimpleRouter;
 using Subarashii.Core;
 using Subarashii.Core.Exceptions;
@@ -17,7 +18,7 @@ namespace Gestion.Cli
             Console.ReadKey();
 
             var client = new Client(GetValueFromConfig<string>("ip"), GetValueFromConfig<int>("port"));
-            client.Connect(() =>
+            client.Connect(async () =>
             {
                 try
                 {
@@ -41,7 +42,7 @@ namespace Gestion.Cli
 
                         try
                         {
-                            Router.RouteOperation(option, new object[] { client });
+                            await Router.RouteOperation(option, new object[] { client });
                         }
                         catch (OperationFailedException)
                         {

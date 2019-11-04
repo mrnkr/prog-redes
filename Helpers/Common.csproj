@@ -69,6 +69,7 @@
     <Compile Include="ConsolePrompts.cs" />
     <Compile Include="Auth\JwtHelpers.cs" />
     <Compile Include="Auth\JwtAuthHandler.cs" />
+    <Compile Include="Exceptions\OperationFailedException.cs" />
     <Compile Include="LogEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
