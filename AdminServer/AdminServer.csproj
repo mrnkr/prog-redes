@@ -140,8 +140,10 @@
     <Compile Include="App_Start\WebApiConfig.cs" />
     <Compile Include="Controllers\LoginController.cs" />
     <Compile Include="Controllers\GradingController.cs" />
+    <Compile Include="Controllers\SignupController.cs" />
     <Compile Include="Controllers\StudentsController.cs" />
     <Compile Include="Controllers\SubjectsController.cs" />
+    <Compile Include="Exceptions\EmptyStringException.cs" />
     <Compile Include="Exceptions\UnauthorizedException.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
@@ -150,6 +152,7 @@
     <Compile Include="RemotingClient.cs" />
     <Compile Include="ViewModels\GradingViewModel.cs" />
     <Compile Include="ViewModels\LoginViewModel.cs" />
+    <Compile Include="ViewModels\SignupViewModel.cs" />
     <Compile Include="ViewModels\StudentQueryViewModel.cs" />
     <Compile Include="ViewModels\StudentViewModel.cs" />
     <Compile Include="ViewModels\SubjectViewModel.cs" />

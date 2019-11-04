@@ -14,7 +14,7 @@ namespace AdminServer.Controllers
         {
             Ctx = RemotingClient.GetContext();
         }
-
+        //api/login
         public TokenResponseViewModel Login([FromBody] LoginViewModel data)
         {
             try
