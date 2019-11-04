@@ -15,9 +15,10 @@ namespace AdminServer.Controllers
 
         //POST: api/grading
         [Authorize]
-        public void GradeStudent([FromBody] GradingViewModel model)
+        public string GradeStudent([FromBody] GradingViewModel model)
         {
             Ctx.StudentService.GradeStudent(model.studentId, model.subjectId, model.grade);
+            return "Student has been graded succesfully";
         }
     }
 }
