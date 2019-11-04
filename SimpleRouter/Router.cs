@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace SimpleRouter
 {
-    public class Router
+    public static class Router
     {
         public static void ListPossibleOperations()
         {
@@ -34,7 +35,7 @@ namespace SimpleRouter
             Console.WriteLine("");
         }
 
-        public static void RouteOperation(string code, object[] inject)
+        public static async Task RouteOperation(string code, object[] inject)
         {
             var called = false;
 
@@ -56,7 +57,7 @@ namespace SimpleRouter
                     continue;
                 }
 
-                called = CallHandler(ctrl, handler, inject);
+                called = await CallHandler(ctrl, handler, inject);
                 break;
             }
 
@@ -66,12 +67,19 @@ namespace SimpleRouter
             }
         }
 
-        private static bool CallHandler(Type ctrl, MethodInfo handler, object[] inject)
+        private static async Task<bool> CallHandler(Type ctrl, MethodInfo handler, object[] inject)
         {
             try
             {
                 var ctrlInstance = Activator.CreateInstance(ctrl, inject);
-                handler.Invoke(ctrlInstance, new object[] { });
+                var ret = handler.Invoke(ctrlInstance, new object[] { });
+
+                if (handler.ReturnType == typeof(Task))
+                {
+                    var t = (Task)ret;
+                    await t;
+                }
+
                 return true;
             }
             catch (TargetInvocationException e)

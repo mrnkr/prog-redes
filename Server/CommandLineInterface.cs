@@ -11,7 +11,7 @@ namespace Gestion.Srv
     {
         public static void BeginInteractive(Server server)
         {
-            new Thread(() =>
+            new Thread(async () =>
             {
                 Thread.Sleep(300);
                 while (true)
@@ -29,7 +29,7 @@ namespace Gestion.Srv
                         Process.GetCurrentProcess().Kill();
                     }
 
-                    Router.RouteOperation(option, new object[] { server });
+                    await Router.RouteOperation(option, new object[] { server });
                     Console.WriteLine("Presiona enter para continuar");
                     Console.ReadKey();
                 }
