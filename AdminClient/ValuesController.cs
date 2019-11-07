@@ -162,12 +162,15 @@ namespace Gestion.Admin.Cli
 
             var option = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Numero del tipo de evento deseado",
-                min: 1,
+                min: 0,
                 max: Constants.EventTypes.Count());
 
-            var eventType = Constants.EventTypes.ElementAt(option - 1);
-            query.WithEventType(eventType);
-
+            if (option == 0)
+            {
+                var eventType = Constants.EventTypes.ElementAt(option - 1);
+                query.WithEventType(eventType);
+            }
+            
             var sort = ConsolePrompts.ReadUntilValid(
                 prompt: "Desea ordenar los eventos por fecha? [Y/n]",
                 pattern: "Y|n",
