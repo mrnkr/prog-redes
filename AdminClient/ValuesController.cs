@@ -94,5 +94,49 @@ namespace Gestion.Admin.Cli
             ConsolePrompts.PrintEmptyLine();
         }
 
+        [SimpleHandler("2", "Registrar profesor")]
+        public async Task RegisterTeacher()
+        {
+            Console.Clear();
+            ConsolePrompts.PrintHeader("Asistente de registro de profesores");
+            ConsolePrompts.PrintEmptyLine();
+
+            Console.WriteLine("Se le pedira llenar todos los campos para la creacion de un profesor");
+            ConsolePrompts.PrintEmptyLine();
+
+            var firstName = ConsolePrompts.ReadUntilValid(
+                prompt: "Nombre",
+                pattern: ".+",
+                errorMsg: "El nombre no puede ser vacio");
+
+            var lastName = ConsolePrompts.ReadUntilValid(
+              prompt: "Apellido",
+              pattern: ".+",
+              errorMsg: "El apellido no puede ser vacio");
+
+            var email = ConsolePrompts.ReadUntilValid(
+              prompt: "Email",
+              pattern: Constants.EMAIL_REGEX,
+              errorMsg: "Email invalido");
+
+            var password = ConsolePrompts.ReadUntilValid(
+              prompt: "Password",
+              pattern: ".+",
+              errorMsg: "Password invalido");
+
+            Console.WriteLine("Cargando...");
+            ConsolePrompts.PrintEmptyLine();
+            await Admin.PostAndExpectObjectAsync<string>("/api/signup", new
+            {
+                firstName,
+                lastName,
+                email,
+                password,
+            });
+
+            Console.WriteLine($"Se ha registrado el profesor {lastName}, {firstName}");
+            ConsolePrompts.PrintEmptyLine();
+        }
+
     }
 }
