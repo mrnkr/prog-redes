@@ -1,5 +1,6 @@
 ﻿using Gestion.Admin.Cli.ViewModels;
 using Gestion.Common;
+using Gestion.Common.Exceptions;
 using SimpleRouter;
 using System;
 using System.Collections.Generic;
@@ -110,31 +111,107 @@ namespace Gestion.Admin.Cli
                 errorMsg: "El nombre no puede ser vacio");
 
             var lastName = ConsolePrompts.ReadUntilValid(
-              prompt: "Apellido",
-              pattern: ".+",
-              errorMsg: "El apellido no puede ser vacio");
+                prompt: "Apellido",
+                pattern: ".+",
+                errorMsg: "El apellido no puede ser vacio");
 
             var email = ConsolePrompts.ReadUntilValid(
-              prompt: "Email",
-              pattern: Constants.EMAIL_REGEX,
-              errorMsg: "Email invalido");
+                prompt: "Email",
+                pattern: Constants.EMAIL_REGEX,
+                errorMsg: "Email invalido");
 
             var password = ConsolePrompts.ReadUntilValid(
-              prompt: "Password",
-              pattern: ".+",
-              errorMsg: "Password invalido");
+                prompt: "Password",
+                pattern: ".+",
+                errorMsg: "Password invalido");
 
             Console.WriteLine("Cargando...");
             ConsolePrompts.PrintEmptyLine();
-            await Admin.PostAndExpectObjectAsync<string>("/api/signup", new
+
+            try
             {
-                firstName,
-                lastName,
-                email,
-                password,
-            });
+                await Admin.PostAndExpectObjectAsync<string>("/api/signup", new
+                {
+                    firstName,
+                    lastName,
+                    email,
+                    password,
+                });
+            }
+            catch
+            {
+                throw new OperationFailedException();
+            }
+           
 
             Console.WriteLine($"Se ha registrado el profesor {lastName}, {firstName}");
+            ConsolePrompts.PrintEmptyLine();
+        }
+
+        [SimpleHandler("3", "Logs")]
+        public async Task ShowLogs()
+        {
+            var query = new QueryBuilder();
+
+            Console.Clear();
+            ConsolePrompts.PrintHeader("Logs");
+            ConsolePrompts.PrintEmptyLine();
+
+            ConsolePrompts.PrintListWithIndices(Constants.EventTypes.Prepend("Todos"));
+            ConsolePrompts.PrintEmptyLine();
+
+            var option = ConsolePrompts.ReadNumberUntilValid(
+                prompt: "Numero del tipo de evento deseado",
+                min: 1,
+                max: Constants.EventTypes.Count() + 1);
+
+            if (option > 1)
+            {
+                var eventType = Constants.EventTypes.ElementAt(option - 2);
+                query.WithEventType(eventType);
+            }
+            
+            var sort = ConsolePrompts.ReadUntilValid(
+                prompt: "Desea ordenar los eventos por fecha? [Y/n]",
+                pattern: "Y|n",
+                errorMsg: "Por favor, ingrese una Y o una n");
+
+            if (sort == "Y")
+            {
+                var isDescending = ConsolePrompts.ReadUntilValid(
+                    prompt: "Desea ordenar los eventos de forma descendente? [Y/n]",
+                    pattern: "Y|n",
+                    errorMsg: "Por favor, ingrese una Y o una n");
+
+                if (isDescending == "Y")
+                {
+                    query.SortDescending();
+                }
+                else
+                {
+                    query.Sort();
+                }
+            }
+
+            Console.WriteLine("Cargando...");
+            ConsolePrompts.PrintEmptyLine();
+            try
+            {
+                var logs = await Logs.GetObjectAsync<IEnumerable<LogEntryViewModel>>($"/api/logs{query.Build()}");
+
+                if (logs.Count() == 0)
+                {
+                    Console.WriteLine("No hay logs que mostrar...");
+                    return;
+                }
+
+                ConsolePrompts.PrintListWithIndices(logs.Select(l => $"[{l.timestamp}] {l.eventType} - {l.description}"));
+            }
+            catch
+            {
+                throw new OperationFailedException();
+            }
+
             ConsolePrompts.PrintEmptyLine();
         }
 
