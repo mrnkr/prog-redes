@@ -23,9 +23,10 @@ namespace Gestion.Admin.Cli
 
             try
             {
+                var shouldExit = false;
                 await Authenticate();
 
-                while (true)
+                while (!shouldExit)
                 {
                     Console.Clear();
                     Router.ListPossibleOperations();
@@ -37,6 +38,7 @@ namespace Gestion.Admin.Cli
 
                     if (option == "exit")
                     {
+                        shouldExit = true;
                         break;
                     }
 
