@@ -111,19 +111,19 @@ namespace Gestion.Admin.Cli
                 errorMsg: "El nombre no puede ser vacio");
 
             var lastName = ConsolePrompts.ReadUntilValid(
-              prompt: "Apellido",
-              pattern: ".+",
-              errorMsg: "El apellido no puede ser vacio");
+                prompt: "Apellido",
+                pattern: ".+",
+                errorMsg: "El apellido no puede ser vacio");
 
             var email = ConsolePrompts.ReadUntilValid(
-              prompt: "Email",
-              pattern: Constants.EMAIL_REGEX,
-              errorMsg: "Email invalido");
+                prompt: "Email",
+                pattern: Constants.EMAIL_REGEX,
+                errorMsg: "Email invalido");
 
             var password = ConsolePrompts.ReadUntilValid(
-              prompt: "Password",
-              pattern: ".+",
-              errorMsg: "Password invalido");
+                prompt: "Password",
+                pattern: ".+",
+                errorMsg: "Password invalido");
 
             Console.WriteLine("Cargando...");
             ConsolePrompts.PrintEmptyLine();
@@ -157,17 +157,17 @@ namespace Gestion.Admin.Cli
             ConsolePrompts.PrintHeader("Logs");
             ConsolePrompts.PrintEmptyLine();
 
-            ConsolePrompts.PrintListWithIndices(Constants.EventTypes);
+            ConsolePrompts.PrintListWithIndices(Constants.EventTypes.Prepend("Todos"));
             ConsolePrompts.PrintEmptyLine();
 
             var option = ConsolePrompts.ReadNumberUntilValid(
                 prompt: "Numero del tipo de evento deseado",
-                min: 0,
-                max: Constants.EventTypes.Count());
+                min: 1,
+                max: Constants.EventTypes.Count() + 1);
 
-            if (option == 0)
+            if (option > 1)
             {
-                var eventType = Constants.EventTypes.ElementAt(option - 1);
+                var eventType = Constants.EventTypes.ElementAt(option - 2);
                 query.WithEventType(eventType);
             }
             
@@ -194,9 +194,17 @@ namespace Gestion.Admin.Cli
             }
 
             Console.WriteLine("Cargando...");
+            ConsolePrompts.PrintEmptyLine();
             try
             {
                 var logs = await Logs.GetObjectAsync<IEnumerable<LogEntryViewModel>>($"/api/logs{query.Build()}");
+
+                if (logs.Count() == 0)
+                {
+                    Console.WriteLine("No hay logs que mostrar...");
+                    return;
+                }
+
                 ConsolePrompts.PrintListWithIndices(logs.Select(l => $"[{l.timestamp}] {l.eventType} - {l.description}"));
             }
             catch
