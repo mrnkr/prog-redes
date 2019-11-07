@@ -12,7 +12,6 @@ namespace Gestion.Admin.Cli
 {
     class Program
     {
-        private const string EMAIL_REGEX = @"^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$";
         private static HttpClient AdminClient { get; } = new HttpClient { BaseAddress = new Uri(Config.GetValue<string>("admin_api")) };
         private static HttpClient LogsClient { get; } = new HttpClient { BaseAddress = new Uri(Config.GetValue<string>("logs_api")) };
 
@@ -67,7 +66,7 @@ namespace Gestion.Admin.Cli
 
             var email = ConsolePrompts.ReadUntilValid(
                 prompt: "Email",
-                pattern: EMAIL_REGEX,
+                pattern: Constants.EMAIL_REGEX,
                 errorMsg: "Ese email no parece valido... Por favor, vuelve a intentarlo");
 
             var password = ConsolePrompts.ReadUntilValid(
